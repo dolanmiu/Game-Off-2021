@@ -69,7 +69,7 @@ jobs:
          - name: Prettier
            run: npm run prettier
    build-and-deploy-client:
-      needs: [build-client, lint, prettier]
+      needs: [build-client, test, lint, prettier]
       runs-on: ubuntu-latest
       steps:
          - name: Checkout 🛎️
@@ -87,6 +87,8 @@ jobs:
               branch: gh-pages
               folder: dist/client
    build-and-deploy-server:
+      needs: [build-server, test, lint, prettier]
+      runs-on: ubuntu-latest
       steps:
          - uses: actions/checkout@v2
          - uses: akhileshns/heroku-deploy@v3.12.12
