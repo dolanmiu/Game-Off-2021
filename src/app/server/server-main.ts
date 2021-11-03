@@ -5,7 +5,7 @@ import {ServerStoreManager} from './store/server-store.manager';
 
 @OnlyInstantiableByContainer
 class ServerMain {
-   public constructor(
+   constructor(
       @Inject private readonly player: ServerPlayerManager,
       @Inject private readonly network: ServerNetworkManager,
       @Inject private readonly store: ServerStoreManager,

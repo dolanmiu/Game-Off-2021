@@ -5,7 +5,7 @@ import {generateId} from '../../shared/utils/utils';
 
 @Singleton
 export class ClientNetworkManager {
-   public constructor(
+   constructor(
       @Inject private readonly service: ClientNetworkService,
    ) {
       service.connected$.subscribe(() => {

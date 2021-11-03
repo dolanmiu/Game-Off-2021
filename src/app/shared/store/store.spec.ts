@@ -1,7 +1,7 @@
 import {Store} from './store';
 
 class MockStore extends Store<string> {
-   public getId(): string {
+   getId(): string {
       return MockStore.name;
    }
 }

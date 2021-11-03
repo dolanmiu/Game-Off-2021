@@ -15,7 +15,7 @@ export class ClientNetworkBufferedWrapper implements ClientEventNetwork<NetworkM
    readonly disconnected$: Observable<void>;
    readonly data$: Observable<NetworkMessage>;
 
-   public constructor(
+   constructor(
       @Inject private readonly thread: ClientNetworkThreadWrapper<NetworkDataType>,
       @Inject private readonly buffer: TimeMapBuffer<NetworkEvent, NetworkPayload>,
    ) {

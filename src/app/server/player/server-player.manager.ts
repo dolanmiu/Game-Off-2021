@@ -6,7 +6,7 @@ import {LoginStatus} from '../../shared/network/shared-network.model';
 
 @Singleton
 export class ServerPlayerManager {
-   public constructor(
+   constructor(
       @Inject private readonly service: ServerPlayerService,
       @Inject private readonly network: ServerNetworkService,
    ) {

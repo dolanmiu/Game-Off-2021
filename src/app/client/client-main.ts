@@ -6,7 +6,7 @@ import {ClientStoreManager} from './store/client-store.manager';
 
 @OnlyInstantiableByContainer
 class ClientMain {
-   public constructor(
+   constructor(
       @Inject private readonly player: ClientPlayerManager,
       @Inject private readonly network: ClientNetworkManager,
       @Inject private readonly store: ClientStoreManager,

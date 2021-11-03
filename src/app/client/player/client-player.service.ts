@@ -12,7 +12,7 @@ export class ClientPlayerService extends SharedPlayerService {
 
    private clientId?: string;
 
-   public constructor(
+   constructor(
       @Inject private readonly wrapper: ClientPlayerWrapper,
       @Inject private readonly store: PlayerStore,
    ) {

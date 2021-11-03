@@ -4,7 +4,7 @@ import {PlayerStore} from '../../shared/player/player-store';
 
 @Singleton
 export class ServerPlayerService extends SharedPlayerService {
-   public constructor(
+   constructor(
       @Inject private readonly store: PlayerStore,
    ) {
       super();

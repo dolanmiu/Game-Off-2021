@@ -21,7 +21,7 @@ export class ClientNetworkService {
    readonly loginFailed$: Observable<LoginStatus>;
    readonly storesData$: Observable<StoresDto>;
 
-   public constructor(
+   constructor(
       @Inject private readonly wrapper: ClientNetworkBufferedWrapper,
    ) {
       this.connected$ = wrapper.connected$;

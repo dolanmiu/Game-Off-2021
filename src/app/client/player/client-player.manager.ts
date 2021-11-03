@@ -4,7 +4,7 @@ import {ClientNetworkService} from '../network/client-network.service';
 
 @Singleton
 export class ClientPlayerManager {
-   public constructor(
+   constructor(
       @Inject private readonly service: ClientPlayerService,
       @Inject private readonly network: ClientNetworkService,
    ) {
