@@ -13,24 +13,25 @@ const socketEvents: { [key in SocketEvent]: Observable<unknown> } = {
    data: socketEventSubjects['data'].asObservable(),
 };
 
+class MockIO {
+   public connected = false;
+   public connect = () => {
+      this.connected = true;
+      socketEventSubjects['connect'].next(null);
+   };
+   public disconnect = () => {
+      this.connected = false;
+      socketEventSubjects['disconnect'].next(null);
+   };
+   public addEventListener = (eventName: SocketEvent, handler: (...args: unknown[]) => void) => {
+      socketEvents[eventName as SocketEvent].subscribe((data) => handler(data));
+   };
+   public removeEventListener = () => {};
+}
+
 jest.mock('socket.io-client', () => ({
    // @ts-ignore
-   io: () =>
-      new (function () {
-         this.connected = false;
-         this.connect = () => {
-            this.connected = true;
-            socketEventSubjects['connect'].next(null);
-         };
-         this.disconnect = () => {
-            this.connected = false;
-            socketEventSubjects['disconnect'].next(null);
-         };
-         this.addEventListener = (eventName: SocketEvent, handler: (...args: unknown[]) => void) => {
-            socketEvents[eventName as SocketEvent].subscribe((data) => handler(data));
-         };
-         this.removeEventListener = () => {};
-      })(),
+   io: () => new MockIO(),
 }));
 
 describe('ClientSocketIoWrapper', () => {
