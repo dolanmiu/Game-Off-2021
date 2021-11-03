@@ -15,6 +15,8 @@
       "start:server": "node dist/server/main.js",
       "start": "npm run start:server",
       "test": "jest --silent",
+      "prettier": "prettier -l \"src/**/*.ts\"",
+      "prettier.fix": "npm run prettier -- --write",
       "lint": "eslint ./src/app/ --ext .ts",
       "lint:fix": "eslint --fix ./src/app/ --ext .ts"
    },
@@ -49,6 +51,7 @@
       "node-sass": "6.0.1",
       "optimize-js-plugin": "^0.0.4",
       "path": "^0.12.7",
+      "prettier": "^2.4.1",
       "replace-in-file-webpack-plugin": "^1.0.6",
       "resolve-url-loader": "^4.0.0",
       "rxjs": "^7.3.0",
