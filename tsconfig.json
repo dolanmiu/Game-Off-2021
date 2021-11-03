@@ -1,0 +1,28 @@
+{
+   "compilerOptions": {
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "esModuleInterop": true,
+      "target": "es5",
+      "noImplicitAny": true,
+      "moduleResolution": "node",
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "sourceMap": true,
+      "mapRoot": "/",
+      "sourceRoot": "/",
+      "outDir": "build",
+      "alwaysStrict": true,
+      "downlevelIteration": true,
+      "baseUrl": "./",
+      "strictNullChecks": true
+   },
+   "include": [
+      "src/app/**/*.ts"
+   ],
+   "exclude": [
+      "**/node_modules/**",
+      "**/*.spec.ts",
+      "dist/**"
+   ]
+}
