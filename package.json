@@ -15,7 +15,7 @@
       "start:server": "node dist/server/main.js",
       "start": "npm run start:server",
       "test": "jest --silent",
-      "prettier": "prettier -l \"src/**/*.ts\"",
+      "prettier": "prettier -l \"**/*.{ts,yml}\"",
       "prettier:fix": "npm run prettier -- --write",
       "lint": "eslint ./src/app/ --ext .ts",
       "lint:fix": "eslint --fix ./src/app/ --ext .ts"

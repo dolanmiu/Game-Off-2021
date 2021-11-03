@@ -4,8 +4,8 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 // @ts-ignore
 import HtmlWebPackPlugin from 'html-webpack-plugin';
 // @ts-ignore
-import {CleanWebpackPlugin} from 'clean-webpack-plugin';
-import {Configuration, HotModuleReplacementPlugin} from 'webpack';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import { Configuration, HotModuleReplacementPlugin } from 'webpack';
 // @ts-ignore
 import OptimizeJsPlugin from 'optimize-js-plugin';
 // @ts-ignore
@@ -81,7 +81,7 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
          }),
       );
    }
-   console.log(targetName, targetName==='client')
+   console.log(targetName, targetName === 'client');
    if (targetName === 'client') {
       plugins.push(
          new ThreadsPlugin({
@@ -180,10 +180,10 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
       externals:
          target.target === 'node'
             ? [
-               nodeExternals({
-                  // whitelist: [/^three/, /^shared/],
-               }),
-            ]
+                 nodeExternals({
+                    // whitelist: [/^three/, /^shared/],
+                 }),
+              ]
             : [],
       resolve: {
          extensions: [
@@ -202,12 +202,7 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
             },
             {
                test: /\.scss$/,
-               use: [
-                  'style-loader',
-                  'css-loader',
-                  'resolve-url-loader',
-                  'sass-loader',
-               ],
+               use: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader'],
             },
             {
                test: /\.tsx?$/,
