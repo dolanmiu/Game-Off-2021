@@ -1,4 +1,4 @@
-import {Player} from '../player/player.model';
+import { Player } from '../player/player.model';
 
 export interface NetworkMessage<T = NetworkPayload> {
    event: NetworkEvent;
@@ -10,8 +10,7 @@ export enum NetworkEvent {
    STORE,
 }
 
-export interface NetworkPayload {
-}
+export interface NetworkPayload {}
 
 export type NetworkDataType = NetworkMessage[];
 

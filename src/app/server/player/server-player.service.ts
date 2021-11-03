@@ -1,12 +1,10 @@
-import {Inject, Singleton} from 'typescript-ioc';
-import {SharedPlayerService} from '../../shared/player/shared-player.service';
-import {PlayerStore} from '../../shared/player/player-store';
+import { Inject, Singleton } from 'typescript-ioc';
+import { SharedPlayerService } from '../../shared/player/shared-player.service';
+import { PlayerStore } from '../../shared/player/player-store';
 
 @Singleton
 export class ServerPlayerService extends SharedPlayerService {
-   constructor(
-      @Inject private readonly store: PlayerStore,
-   ) {
+   constructor(@Inject private readonly store: PlayerStore) {
       super();
    }
 

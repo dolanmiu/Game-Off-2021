@@ -1,5 +1,5 @@
 import deepmerge from 'deepmerge';
-import {Subject} from 'rxjs';
+import { Subject } from 'rxjs';
 
 export class TimeMapBuffer<K, V> {
    private readonly dataSubject = new Subject<[K, V][]>();

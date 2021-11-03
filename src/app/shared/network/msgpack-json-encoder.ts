@@ -1,5 +1,5 @@
-import {decode, encode, EncodeOptions} from '@msgpack/msgpack';
-import {deflateSync, inflateSync} from 'zlib';
+import { decode, encode, EncodeOptions } from '@msgpack/msgpack';
+import { deflateSync, inflateSync } from 'zlib';
 
 export class MsgpackJsonEncoder<T> {
    private static readonly msgpackOptions: EncodeOptions = {

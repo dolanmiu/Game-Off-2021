@@ -1,4 +1,4 @@
-import {Store} from './store';
+import { Store } from './store';
 
 class MockStore extends Store<string> {
    getId(): string {
@@ -188,7 +188,7 @@ describe('Store', () => {
          store.commit('1', '1');
          store.commit('2', '2');
          store.commit('3', '3');
-         store.remove('3')
+         store.remove('3');
          expect(store.getSize()).toEqual(2);
       });
    });

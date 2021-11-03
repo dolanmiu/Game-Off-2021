@@ -1,4 +1,4 @@
-import {Store} from '../../shared/store/store';
+import { Store } from '../../shared/store/store';
 
 export const updateOrRemove = <T>(store: Store<T>, key: string, value: T | null): void => {
    if (value === null) {
@@ -6,4 +6,4 @@ export const updateOrRemove = <T>(store: Store<T>, key: string, value: T | null)
    } else {
       store.update(key, value);
    }
-}
+};

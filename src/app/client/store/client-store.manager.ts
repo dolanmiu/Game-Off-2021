@@ -1,10 +1,10 @@
-import {Inject, Singleton} from 'typescript-ioc';
-import {ClientNetworkService} from '../network/client-network.service';
-import {ClientPlayerService} from '../player/client-player.service';
-import {Store} from '../../shared/store/store';
-import {mergeMap} from 'rxjs';
-import {PlayerStore} from '../../shared/player/player-store';
-import {updateOrRemove} from './client-store.utils';
+import { Inject, Singleton } from 'typescript-ioc';
+import { ClientNetworkService } from '../network/client-network.service';
+import { ClientPlayerService } from '../player/client-player.service';
+import { Store } from '../../shared/store/store';
+import { mergeMap } from 'rxjs';
+import { PlayerStore } from '../../shared/player/player-store';
+import { updateOrRemove } from './client-store.utils';
 
 @Singleton
 export class ClientStoreManager {
@@ -28,10 +28,9 @@ export class ClientStoreManager {
 
    // Updates from the network will be merged into the store
    private subscribeNetworkUpdateToStore<T>(store: Store<T>): void {
-      this.network.onStoreDto<T>(store.getId())
-         .pipe(
-            mergeMap((storeData) => Array.from(Object.entries(storeData))),
-         )
+      this.network
+         .onStoreDto<T>(store.getId())
+         .pipe(mergeMap((storeData) => Array.from(Object.entries(storeData))))
          .subscribe(([key, entity]) => updateOrRemove(store, key, entity));
    }
 }

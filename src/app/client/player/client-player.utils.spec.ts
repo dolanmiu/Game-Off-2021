@@ -1,4 +1,4 @@
-import {returnOne} from './client-player.utils';
+import { returnOne } from './client-player.utils';
 
 describe('ClientPlayerUtils', () => {
    describe('returnOne', () => {

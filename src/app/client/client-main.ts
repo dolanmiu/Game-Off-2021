@@ -1,8 +1,8 @@
 import './main.scss';
-import {Container, Inject, OnlyInstantiableByContainer} from 'typescript-ioc';
-import {ClientPlayerManager} from './player/client-player.manager';
-import {ClientNetworkManager} from './network/client-network.manager';
-import {ClientStoreManager} from './store/client-store.manager';
+import { Container, Inject, OnlyInstantiableByContainer } from 'typescript-ioc';
+import { ClientPlayerManager } from './player/client-player.manager';
+import { ClientNetworkManager } from './network/client-network.manager';
+import { ClientStoreManager } from './store/client-store.manager';
 
 @OnlyInstantiableByContainer
 class ClientMain {

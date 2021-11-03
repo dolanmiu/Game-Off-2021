@@ -1,4 +1,3 @@
-import {CommonServerConfig} from './common-server-config';
+import { CommonServerConfig } from './common-server-config';
 
-export class ServerConfig extends CommonServerConfig {
-}
+export class ServerConfig extends CommonServerConfig {}

@@ -1,9 +1,9 @@
-import {Singleton} from 'typescript-ioc';
-import {ClientNetwork, ClientNetworkUsingOnlyFunctions} from './client-network.model';
-import {ReplaySubject, Subject} from 'rxjs';
-import {spawn, Worker} from 'threads';
+import { Singleton } from 'typescript-ioc';
+import { ClientNetwork, ClientNetworkUsingOnlyFunctions } from './client-network.model';
+import { ReplaySubject, Subject } from 'rxjs';
+import { spawn, Worker } from 'threads';
 import 'threads/register';
-import {clientNetworkThreadUrl} from '../utils/worker-url.utils';
+import { clientNetworkThreadUrl } from '../utils/worker-url.utils';
 
 @Singleton
 export class ClientNetworkThreadWrapper<T> implements ClientNetwork<T> {
@@ -27,9 +27,7 @@ export class ClientNetworkThreadWrapper<T> implements ClientNetwork<T> {
 
    private async initThread(): Promise<void> {
       console.log('Network thread loading..');
-      this.thread = (await spawn(
-         new Worker(clientNetworkThreadUrl, {type: 'module'}),
-      ) as unknown) as ClientNetworkUsingOnlyFunctions<T>;
+      this.thread = (await spawn(new Worker(clientNetworkThreadUrl, { type: 'module' }))) as unknown as ClientNetworkUsingOnlyFunctions<T>;
       this.thread.onConnected().subscribe(() => this.connectedSubject.next());
       this.thread.onDisconnected().subscribe(() => this.disconnectedSubject.next());
       this.thread.onData().subscribe((data) => this.dataSubject.next(data));
@@ -44,7 +42,7 @@ export class ClientNetworkThreadWrapper<T> implements ClientNetwork<T> {
    connect(host: string): void {
       this.initialized$.subscribe(() => {
          this.thread?.connect(host);
-      })
+      });
    }
 
    disconnect(): void {

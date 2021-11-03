@@ -1,13 +1,13 @@
-import {Inject, Singleton} from 'typescript-ioc';
-import {fromEvent, map, mergeMap, Observable, Subject, takeUntil} from 'rxjs';
-import {ServerNetworkMessage} from './server-network.model';
-import {ServerSocketIoWrapper} from './server-socket-io.wrapper';
-import {NetworkMessage} from '../../shared/network/shared-network.model';
-import {MsgpackJsonEncoder} from '../../shared/network/msgpack-json-encoder';
-import {Socket} from 'socket.io';
-import {SocketEvent} from '../../shared/network/shared-socket.wrapper.model';
-import {mapServerNetworkMessage} from './server-network.wrapper.utils';
-import {filter, share} from 'rxjs/operators';
+import { Inject, Singleton } from 'typescript-ioc';
+import { fromEvent, map, mergeMap, Observable, Subject, takeUntil } from 'rxjs';
+import { ServerNetworkMessage } from './server-network.model';
+import { ServerSocketIoWrapper } from './server-socket-io.wrapper';
+import { NetworkMessage } from '../../shared/network/shared-network.model';
+import { MsgpackJsonEncoder } from '../../shared/network/msgpack-json-encoder';
+import { Socket } from 'socket.io';
+import { SocketEvent } from '../../shared/network/shared-socket.wrapper.model';
+import { mapServerNetworkMessage } from './server-network.wrapper.utils';
+import { filter, share } from 'rxjs/operators';
 
 @Singleton
 export class ServerNetworkWrapper {
@@ -26,8 +26,7 @@ export class ServerNetworkWrapper {
       @Inject private readonly wrapper: ServerSocketIoWrapper,
       @Inject private readonly encoder: MsgpackJsonEncoder<NetworkMessage[]>,
    ) {
-      wrapper.connected$
-         .subscribe((client) => this.addClient(client));
+      wrapper.connected$.subscribe((client) => this.addClient(client));
    }
 
    send(clientId: string, message: NetworkMessage): void {
@@ -55,7 +54,7 @@ export class ServerNetworkWrapper {
          .pipe(
             takeUntil(this.clientDisconnected(client.id)),
             map((buffer: Buffer) => this.encoder.decode(buffer)),
-            mergeMap(x => x),
+            mergeMap((x) => x),
             map((message) => mapServerNetworkMessage(message, client.id)),
          )
          .subscribe((message) => this.clientDataSubject.next(message));
@@ -69,8 +68,8 @@ export class ServerNetworkWrapper {
 
    private clientDisconnected(clientId: string): Observable<unknown> {
       return this.clientDisconnectedId$.pipe(
-         filter(id => id === clientId),
+         filter((id) => id === clientId),
          share(),
-      )
+      );
    }
 }

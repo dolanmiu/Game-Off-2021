@@ -1,7 +1,7 @@
-import {Observable, Subject} from 'rxjs';
-import {StoreEntity} from './store.model';
-import {MapById} from '../utils/utils.model';
-import {filterById} from './store.utils';
+import { Observable, Subject } from 'rxjs';
+import { StoreEntity } from './store.model';
+import { MapById } from '../utils/utils.model';
+import { filterById } from './store.utils';
 
 export abstract class Store<T> {
    private readonly entities = new Map<string, T>();
@@ -43,7 +43,7 @@ export abstract class Store<T> {
    // TODO: Write description
    // Change from higher-level
    update(id: string, value: T): void {
-      const entity: StoreEntity<T> = {id, value};
+      const entity: StoreEntity<T> = { id, value };
       this.addOrChangeEntity(id, entity);
       this.updatedSubject.next(entity);
    }
@@ -51,7 +51,7 @@ export abstract class Store<T> {
    // TODO: Write description
    // Change from lower-level
    commit(id: string, value: T): void {
-      const entity: StoreEntity<T> = {id, value};
+      const entity: StoreEntity<T> = { id, value };
       this.addOrChangeEntity(id, entity);
       this.committedSubject.next(entity);
    }
@@ -59,7 +59,7 @@ export abstract class Store<T> {
    remove(id: string): void {
       if (this.entities.has(id)) {
          this.entities.delete(id);
-         const entity: StoreEntity<T> = {id, value: null};
+         const entity: StoreEntity<T> = { id, value: null };
          this.removedSubject.next(entity);
          this.committedSubject.next(entity);
       }

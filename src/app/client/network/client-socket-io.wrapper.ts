@@ -1,9 +1,9 @@
-import {SharedSocketWrapper} from '../../shared/network/shared-socket.wrapper';
-import {Singleton} from 'typescript-ioc';
-import {ClientNetwork} from './client-network.model';
-import {fromEvent, Subject, takeUntil} from 'rxjs';
-import {io, Socket} from 'socket.io-client';
-import {SocketEvent} from '../../shared/network/shared-socket.wrapper.model';
+import { SharedSocketWrapper } from '../../shared/network/shared-socket.wrapper';
+import { Singleton } from 'typescript-ioc';
+import { ClientNetwork } from './client-network.model';
+import { fromEvent, Subject, takeUntil } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
+import { SocketEvent } from '../../shared/network/shared-socket.wrapper.model';
 
 @Singleton
 export class ClientSocketIoWrapper<T> extends SharedSocketWrapper implements ClientNetwork<T> {
@@ -23,7 +23,7 @@ export class ClientSocketIoWrapper<T> extends SharedSocketWrapper implements Cli
 
    connect(host: string): void {
       this.disconnect();
-      this.socket = io(host, {autoConnect: false});
+      this.socket = io(host, { autoConnect: false });
       this.initListeners();
       this.socket.connect();
    }

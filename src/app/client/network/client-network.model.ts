@@ -1,5 +1,5 @@
-import {Observable} from 'rxjs';
-import {NetworkEvent} from '../../shared/network/shared-network.model';
+import { Observable } from 'rxjs';
+import { NetworkEvent } from '../../shared/network/shared-network.model';
 
 interface AbstractClientNetwork<T> {
    readonly connected$: Observable<void>;

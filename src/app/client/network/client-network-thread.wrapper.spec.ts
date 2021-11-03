@@ -1,5 +1,5 @@
-import {Subject} from 'rxjs';
-import {ClientNetworkThreadWrapper} from './client-network-thread.wrapper';
+import { Subject } from 'rxjs';
+import { ClientNetworkThreadWrapper } from './client-network-thread.wrapper';
 
 const connectedSubject = new Subject<void>();
 const connected$ = connectedSubject.asObservable();
@@ -48,14 +48,14 @@ describe('ClientNetworkThreadWrapper', () => {
    describe('Events', () => {
       it('should escalate connected', () => {
          let result = false;
-         wrapper.connected$.subscribe(() => result = true);
+         wrapper.connected$.subscribe(() => (result = true));
          wrapper.connect('host');
          expect(result).toEqual(true);
       });
 
       it('should escalate disconnected', () => {
          let result = false;
-         wrapper.disconnected$.subscribe(() => result = true);
+         wrapper.disconnected$.subscribe(() => (result = true));
          wrapper.connect('host');
          wrapper.disconnect();
          expect(result).toEqual(true);
@@ -63,7 +63,7 @@ describe('ClientNetworkThreadWrapper', () => {
 
       it('should escalate data', () => {
          let result;
-         wrapper.data$.subscribe(data => result = data);
+         wrapper.data$.subscribe((data) => (result = data));
          wrapper.connect('host');
          wrapper.send('data');
          expect(result).toEqual('data');

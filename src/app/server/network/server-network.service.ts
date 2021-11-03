@@ -1,10 +1,10 @@
-import {Inject, Singleton} from 'typescript-ioc';
-import {ServerNetworkWrapper} from './server-network.wrapper';
-import {ServerNetworkMessage} from './server-network.model';
-import {LoginRequest, LoginResponse, NetworkEvent} from '../../shared/network/shared-network.model';
-import {filter, map, Observable} from 'rxjs';
-import {keyValueObject} from '../../shared/utils/utils';
-import {StoreDto, StoresDto} from '../../shared/store/store.model';
+import { Inject, Singleton } from 'typescript-ioc';
+import { ServerNetworkWrapper } from './server-network.wrapper';
+import { ServerNetworkMessage } from './server-network.model';
+import { LoginRequest, LoginResponse, NetworkEvent } from '../../shared/network/shared-network.model';
+import { filter, map, Observable } from 'rxjs';
+import { keyValueObject } from '../../shared/utils/utils';
+import { StoreDto, StoresDto } from '../../shared/store/store.model';
 
 @Singleton
 export class ServerNetworkService {
@@ -29,12 +29,12 @@ export class ServerNetworkService {
    private onMessage<T>(event: NetworkEvent): Observable<ServerNetworkMessage<T>> {
       return this.data$.pipe(
          filter((message) => message.event === event),
-         map((message) => (message as unknown) as ServerNetworkMessage<T>),
+         map((message) => message as unknown as ServerNetworkMessage<T>),
       );
    }
 
    sendLoginResponse(user: string, response: LoginResponse): void {
-      this.wrapper.send(user, {event: NetworkEvent.LOGIN, value: response});
+      this.wrapper.send(user, { event: NetworkEvent.LOGIN, value: response });
    }
 
    sendDataStoreValue<T>(users: string[], storeId: string, id: string, value: T): void {

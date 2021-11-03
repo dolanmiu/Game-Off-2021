@@ -1,6 +1,6 @@
-import {ClientSocketIoWrapper} from './client-socket-io.wrapper';
-import {Observable, Subject} from 'rxjs';
-import {SocketEvent} from '../../shared/network/shared-socket.wrapper.model';
+import { ClientSocketIoWrapper } from './client-socket-io.wrapper';
+import { Observable, Subject } from 'rxjs';
+import { SocketEvent } from '../../shared/network/shared-socket.wrapper.model';
 
 const socketEventSubjects: { [key in SocketEvent]: Subject<unknown> } = {
    connect: new Subject<unknown>(),
@@ -14,23 +14,23 @@ const socketEvents: { [key in SocketEvent]: Observable<unknown> } = {
 };
 
 jest.mock('socket.io-client', () => ({
-// @ts-ignore
-   io: () => new (function () {
-      this.connected = false;
-      this.connect = () => {
-         this.connected = true;
-         socketEventSubjects['connect'].next(null);
-      };
-      this.disconnect = () => {
+   // @ts-ignore
+   io: () =>
+      new (function () {
          this.connected = false;
-         socketEventSubjects['disconnect'].next(null);
-      };
-      this.addEventListener = (eventName: SocketEvent, handler: (...args: unknown[]) => void) => {
-         socketEvents[eventName as SocketEvent].subscribe(data => handler(data));
-      };
-      this.removeEventListener = () => {
-      };
-   })(),
+         this.connect = () => {
+            this.connected = true;
+            socketEventSubjects['connect'].next(null);
+         };
+         this.disconnect = () => {
+            this.connected = false;
+            socketEventSubjects['disconnect'].next(null);
+         };
+         this.addEventListener = (eventName: SocketEvent, handler: (...args: unknown[]) => void) => {
+            socketEvents[eventName as SocketEvent].subscribe((data) => handler(data));
+         };
+         this.removeEventListener = () => {};
+      })(),
 }));
 
 describe('ClientSocketIoWrapper', () => {
@@ -60,14 +60,14 @@ describe('ClientSocketIoWrapper', () => {
    describe('Events', () => {
       it('should emit connected', () => {
          let result;
-         wrapper.connected$.subscribe(() => result = true);
+         wrapper.connected$.subscribe(() => (result = true));
          wrapper.connect('host');
          expect(result).toEqual(true);
       });
 
       it('should emit disconnected', () => {
          let result;
-         wrapper.disconnected$.subscribe(() => result = true);
+         wrapper.disconnected$.subscribe(() => (result = true));
          wrapper.connect('host');
          wrapper.disconnect();
          expect(result).toEqual(true);
@@ -75,10 +75,10 @@ describe('ClientSocketIoWrapper', () => {
 
       it('should emit data', () => {
          let result;
-         wrapper.data$.subscribe(data => result = data);
+         wrapper.data$.subscribe((data) => (result = data));
          wrapper.connect('host');
          socketEventSubjects['data'].next('data');
          expect(result).toEqual('data');
       });
    });
-})
+});

@@ -1,16 +1,10 @@
-import {Inject, Singleton} from 'typescript-ioc';
-import {ClientNetworkBufferedWrapper} from './client-network-buffered.wrapper';
-import {
-   LoginRequest,
-   LoginResponse,
-   LoginStatus,
-   NetworkEvent,
-   SuccessfulLoginResponse,
-} from '../../shared/network/shared-network.model';
-import {filter, map, mergeMap, Observable} from 'rxjs';
-import {share} from 'rxjs/operators';
-import {keyValueObject} from '../../shared/utils/utils';
-import {StoreDto, StoresDto} from '../../shared/store/store.model';
+import { Inject, Singleton } from 'typescript-ioc';
+import { ClientNetworkBufferedWrapper } from './client-network-buffered.wrapper';
+import { LoginRequest, LoginResponse, LoginStatus, NetworkEvent, SuccessfulLoginResponse } from '../../shared/network/shared-network.model';
+import { filter, map, mergeMap, Observable } from 'rxjs';
+import { share } from 'rxjs/operators';
+import { keyValueObject } from '../../shared/utils/utils';
+import { StoreDto, StoresDto } from '../../shared/store/store.model';
 
 @Singleton
 export class ClientNetworkService {
@@ -21,20 +15,18 @@ export class ClientNetworkService {
    readonly loginFailed$: Observable<LoginStatus>;
    readonly storesData$: Observable<StoresDto>;
 
-   constructor(
-      @Inject private readonly wrapper: ClientNetworkBufferedWrapper,
-   ) {
+   constructor(@Inject private readonly wrapper: ClientNetworkBufferedWrapper) {
       this.connected$ = wrapper.connected$;
       this.disconnected$ = wrapper.disconnected$;
       this.joinResponse$ = this.onEvent<LoginResponse>(NetworkEvent.LOGIN);
       this.loginOk$ = this.joinResponse$.pipe(
          filter((response) => response.status === LoginStatus.OK),
-         map(response => response as SuccessfulLoginResponse),
+         map((response) => response as SuccessfulLoginResponse),
          share(),
       );
       this.loginFailed$ = this.joinResponse$.pipe(
-         filter(response => response.status !== LoginStatus.OK),
-         map(response => response.status),
+         filter((response) => response.status !== LoginStatus.OK),
+         map((response) => response.status),
          share(),
       );
       this.storesData$ = this.onEvent<StoresDto>(NetworkEvent.STORE);
@@ -55,7 +47,7 @@ export class ClientNetworkService {
 
    onStoreDto<T>(targetStoreId: string): Observable<StoreDto<T>> {
       return this.storesData$.pipe(
-         mergeMap(store => Array.from(Object.entries(store))),
+         mergeMap((store) => Array.from(Object.entries(store))),
          filter(([storeId]) => storeId === targetStoreId),
          map(([_, storeData]) => storeData as StoreDto<T>),
          share(),
@@ -65,7 +57,7 @@ export class ClientNetworkService {
    private onEvent<T>(event: NetworkEvent): Observable<T> {
       return this.wrapper.data$.pipe(
          filter((message) => message.event === event),
-         map((message) => (message.value as unknown) as T),
+         map((message) => message.value as unknown as T),
          share(),
       );
    }

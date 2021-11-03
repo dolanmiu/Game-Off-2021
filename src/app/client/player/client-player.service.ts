@@ -1,9 +1,9 @@
-import {Inject, Singleton} from 'typescript-ioc';
-import {ClientPlayerWrapper} from './client-player.wrapper';
-import {SharedPlayerService} from '../../shared/player/shared-player.service';
-import {Player} from '../../shared/player/player.model';
-import {Subject} from 'rxjs';
-import {PlayerStore} from '../../shared/player/player-store';
+import { Inject, Singleton } from 'typescript-ioc';
+import { ClientPlayerWrapper } from './client-player.wrapper';
+import { SharedPlayerService } from '../../shared/player/shared-player.service';
+import { Player } from '../../shared/player/player.model';
+import { Subject } from 'rxjs';
+import { PlayerStore } from '../../shared/player/player-store';
 
 @Singleton
 export class ClientPlayerService extends SharedPlayerService {
@@ -12,10 +12,7 @@ export class ClientPlayerService extends SharedPlayerService {
 
    private clientId?: string;
 
-   constructor(
-      @Inject private readonly wrapper: ClientPlayerWrapper,
-      @Inject private readonly store: PlayerStore,
-   ) {
+   constructor(@Inject private readonly wrapper: ClientPlayerWrapper, @Inject private readonly store: PlayerStore) {
       super();
    }
 

@@ -1,15 +1,12 @@
-import {Inject, Singleton} from 'typescript-ioc';
-import {ServerPlayerService} from './server-player.service';
-import {ServerNetworkService} from '../network/server-network.service';
-import {ServerConfig} from '../config/server-config';
-import {LoginStatus} from '../../shared/network/shared-network.model';
+import { Inject, Singleton } from 'typescript-ioc';
+import { ServerPlayerService } from './server-player.service';
+import { ServerNetworkService } from '../network/server-network.service';
+import { ServerConfig } from '../config/server-config';
+import { LoginStatus } from '../../shared/network/shared-network.model';
 
 @Singleton
 export class ServerPlayerManager {
-   constructor(
-      @Inject private readonly service: ServerPlayerService,
-      @Inject private readonly network: ServerNetworkService,
-   ) {
+   constructor(@Inject private readonly service: ServerPlayerService, @Inject private readonly network: ServerNetworkService) {
       network.loginRequest$.subscribe((message) => {
          if (service.getNrOfPlayers() < ServerConfig.MAX_NR_OF_PLAYERS) {
             service.add(message.clientId, message.value.userName);
@@ -20,8 +17,8 @@ export class ServerPlayerManager {
             });
          }
       });
-      network.clientDisconnectedId$.subscribe(id => {
+      network.clientDisconnectedId$.subscribe((id) => {
          service.remove(id);
-      })
+      });
    }
 }

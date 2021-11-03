@@ -1,12 +1,12 @@
-import {Inject, Singleton} from 'typescript-ioc';
-import {PlayerStore} from '../../shared/player/player-store';
-import {Store} from '../../shared/store/store';
-import {map, Observable} from 'rxjs';
-import {ServerNetworkService} from '../network/server-network.service';
-import {ServerPlayerService} from '../player/server-player.service';
-import {filter} from 'rxjs/operators';
-import {StoreEntity} from '../../shared/store/store.model';
-import {LoginStatus, SuccessfulLoginResponse} from '../../shared/network/shared-network.model';
+import { Inject, Singleton } from 'typescript-ioc';
+import { PlayerStore } from '../../shared/player/player-store';
+import { Store } from '../../shared/store/store';
+import { map, Observable } from 'rxjs';
+import { ServerNetworkService } from '../network/server-network.service';
+import { ServerPlayerService } from '../player/server-player.service';
+import { filter } from 'rxjs/operators';
+import { StoreEntity } from '../../shared/store/store.model';
+import { LoginStatus, SuccessfulLoginResponse } from '../../shared/network/shared-network.model';
 
 @Singleton
 export class ServerStoreManager {

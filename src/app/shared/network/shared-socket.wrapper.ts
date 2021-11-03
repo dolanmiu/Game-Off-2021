@@ -1,2 +1,1 @@
-export abstract class SharedSocketWrapper {
-}
+export abstract class SharedSocketWrapper {}

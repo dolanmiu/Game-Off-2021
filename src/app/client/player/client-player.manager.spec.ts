@@ -1,7 +1,7 @@
-import {ClientPlayerManager} from './client-player.manager';
-import {ClientPlayerService} from './client-player.service';
-import {ClientNetworkService} from '../network/client-network.service';
-import {Subject} from 'rxjs';
+import { ClientPlayerManager } from './client-player.manager';
+import { ClientPlayerService } from './client-player.service';
+import { ClientNetworkService } from '../network/client-network.service';
+import { Subject } from 'rxjs';
 
 jest.mock('../utils/worker-url.utils', () => ({
    clientNetworkThreadUrl: 'workerURL',
@@ -17,10 +17,7 @@ describe('ClientPlayerManager', () => {
       network = {
          loginOk$: new Subject().asObservable(),
       } as unknown as ClientNetworkService;
-      manager = new ClientPlayerManager(
-         service,
-         network,
-      );
+      manager = new ClientPlayerManager(service, network);
    });
 
    it('should be created', () => {

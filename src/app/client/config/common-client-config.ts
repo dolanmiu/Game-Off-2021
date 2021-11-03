@@ -1,4 +1,4 @@
-import {SharedConfig} from '../../shared/config/shared-config';
+import { SharedConfig } from '../../shared/config/shared-config';
 
 export interface ServerHost {
    readonly url: string;
