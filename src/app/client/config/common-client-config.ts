@@ -1,4 +1,4 @@
-import { SharedConfig } from '../../shared/config/shared-config';
+import {SharedConfig} from '../../shared/config/shared-config';
 
 export interface ServerHost {
    readonly url: string;
@@ -11,12 +11,8 @@ export class CommonClientConfig extends SharedConfig {
    static readonly ASSET_FOLDER: string = 'asset/';
    static readonly SERVER_HOSTS: ServerHost[] = [
       {
-         url: 'https://the-big-cheese-eu.herokuapp.com',
+         url: 'https://game-off-2021.herokuapp.com/',
          name: 'Europe',
-      },
-      {
-         url: 'https://the-big-cheese-us.herokuapp.com',
-         name: 'North America',
       },
    ];
 }
