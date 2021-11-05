@@ -15,7 +15,11 @@ export class ServerSocketIoWrapper extends SharedSocketWrapper {
    constructor() {
       super();
       this.httpServer = Http.createServer();
-      this.socketServer = new Server(this.httpServer, { cors: true } as Partial<ServerOptions>);
+      this.socketServer = new Server(this.httpServer, {
+         cors: {
+            origin: '*',
+         },
+      } as Partial<ServerOptions>);
       this.initListeners();
       this.httpServer.listen(SharedConfig.SERVER_SOCKET_PORT);
       console.log(`Socket listening on port ${SharedConfig.SERVER_SOCKET_PORT}`);
