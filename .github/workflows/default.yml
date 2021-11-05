@@ -68,7 +68,8 @@ jobs:
            run: npm ci
          - name: Prettier
            run: npm run prettier
-   build-and-deploy-client:
+   deploy-client:
+      name: Deploy Client
       needs: [build-client, test, lint, prettier]
       runs-on: ubuntu-latest
       steps:
@@ -86,7 +87,8 @@ jobs:
            with:
               branch: gh-pages
               folder: dist/client
-   build-and-deploy-server:
+   deploy-server:
+      name: Deploy Server
       needs: [build-server, test, lint, prettier]
       runs-on: ubuntu-latest
       steps:
