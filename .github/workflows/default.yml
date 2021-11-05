@@ -93,13 +93,15 @@ jobs:
       runs-on: ubuntu-latest
       steps:
          - uses: actions/checkout@v2
-         - name: Install 🔧
-           run: npm ci
          - name: Download Artifact
            uses: actions/download-artifact@master
            with:
               name: server-dist
               path: dist/server
+         - name: Remove File
+           uses: JesseTG/rm@v1.0.2
+           with:
+              path: /.gitignore
          - uses: akhileshns/heroku-deploy@v3.12.12
            with:
               heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
