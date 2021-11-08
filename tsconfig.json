@@ -3,7 +3,7 @@
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
       "esModuleInterop": true,
-      "target": "es5",
+      "target": "ES2017",
       "noImplicitAny": true,
       "moduleResolution": "node",
       "removeComments": true,

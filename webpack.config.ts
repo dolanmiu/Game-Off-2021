@@ -42,7 +42,7 @@ const projectTargets: ProjectTargets = {
       distDir: 'dist/client',
       output: 'main.js',
       target: 'web',
-      title: 'Client version',
+      title: 'Game Off',
       assetDir: 'src/asset',
       distAssetDir: 'asset',
       baseUrl: '.',
@@ -126,6 +126,7 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
       }
       plugins.push(
          new HtmlWebPackPlugin({
+            template: 'src/app/client/index.html',
             filename: 'index.html',
             title: target.title,
             meta: {
