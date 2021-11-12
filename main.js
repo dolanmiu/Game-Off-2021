@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1636694493525"
+module.exports = __webpack_require__.p + "0.main.worker.js?1636705900722"
 
 /***/ }),
 /* 29 */
@@ -60924,7 +60924,39 @@ class pointer_lock_controls_PointerLockControls extends EventDispatcher {
 }
 
 
+// CONCATENATED MODULE: ./src/app/client/game/gun/first-person-gun.ts
+
+class first_person_gun_FirstPersonGun {
+  constructor(camera, scene) {
+    this.mousePosition = new Vector2();
+    this.raycaster = new Raycaster();
+    window.addEventListener('mousemove', event => {
+      this.mousePosition.x = event.clientX / window.innerWidth * 2 - 1;
+      this.mousePosition.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }, false);
+    const listener = new AudioListener();
+    camera.add(listener);
+    const sound = new Audio(listener);
+    const audioLoader = new AudioLoader();
+    audioLoader.load('assets/sounds/gunshot.ogg', buffer => {
+      sound.setBuffer(buffer);
+      sound.setVolume(0.5);
+    });
+    window.addEventListener('click', () => {
+      this.raycaster.setFromCamera(this.mousePosition, camera);
+      const intersects = this.raycaster.intersectObjects(scene.children);
+
+      for (let i = 0; i < intersects.length; i++) {
+        console.log('shooting at', intersects[i].object);
+      }
+
+      sound.play();
+    });
+  }
+
+}
 // CONCATENATED MODULE: ./src/app/client/game/main.ts
+
 
 
 const runGame = () => {
@@ -60932,6 +60964,7 @@ const runGame = () => {
   let scene;
   let renderer;
   let controls;
+  let gun;
   const objects = [];
   let raycaster;
   let moveForward = false;
@@ -61087,6 +61120,7 @@ const runGame = () => {
       objects.push(box);
     }
 
+    gun = new first_person_gun_FirstPersonGun(camera, scene);
     renderer = new WebGLRenderer({
       antialias: true
     });
