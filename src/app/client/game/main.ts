@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 import { PointerLockControls } from './controls/pointer-lock-controls';
+import { FirstPersonGun } from './gun/first-person-gun';
 
 export const runGame = (): void => {
    let camera: THREE.PerspectiveCamera;
    let scene: THREE.Scene;
    let renderer: THREE.WebGLRenderer;
    let controls: PointerLockControls;
+   let gun: FirstPersonGun;
 
    const objects: THREE.Object3D[] = [];
 
@@ -182,6 +184,8 @@ export const runGame = (): void => {
          scene.add(box);
          objects.push(box);
       }
+
+      gun = new FirstPersonGun(camera, scene);
 
       //
 
