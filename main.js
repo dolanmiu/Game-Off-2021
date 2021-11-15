@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1636940624357"
+module.exports = __webpack_require__.p + "0.main.worker.js?1636948422250"
 
 /***/ }),
 /* 29 */
@@ -60819,6 +60819,98 @@ if ( typeof window !== 'undefined' ) {
 
 
 
+// CONCATENATED MODULE: ./src/app/client/game/controls/movement-controls.ts
+
+class movement_controls_MovementControls {
+  constructor() {
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.canJump = false;
+    this.velocity = new Vector3();
+    this.direction = new Vector3();
+    document.addEventListener('keydown', event => {
+      switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+          console.log('move forward');
+          this.moveForward = true;
+          break;
+
+        case 'ArrowLeft':
+        case 'KeyA':
+          this.moveLeft = true;
+          break;
+
+        case 'ArrowDown':
+        case 'KeyS':
+          this.moveBackward = true;
+          break;
+
+        case 'ArrowRight':
+        case 'KeyD':
+          this.moveRight = true;
+          break;
+
+        case 'Space':
+          if (this.canJump === true) {
+            this.velocity.y += 350;
+          }
+
+          this.canJump = false;
+          break;
+      }
+    });
+    document.addEventListener('keyup', event => {
+      switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+          this.moveForward = false;
+          break;
+
+        case 'ArrowLeft':
+        case 'KeyA':
+          this.moveLeft = false;
+          break;
+
+        case 'ArrowDown':
+        case 'KeyS':
+          this.moveBackward = false;
+          break;
+
+        case 'ArrowRight':
+        case 'KeyD':
+          this.moveRight = false;
+          break;
+      }
+    });
+  }
+
+  update(delta, isLocked) {
+    if (isLocked) {
+      this.velocity.x -= this.velocity.x * 10.0 * delta;
+      this.velocity.z -= this.velocity.z * 10.0 * delta;
+      this.velocity.y -= 9.8 * 100.0 * delta;
+      this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
+      this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
+      this.direction.normalize();
+
+      if (this.moveForward || this.moveBackward) {
+        this.velocity.z -= this.direction.z * 400.0 * delta;
+      }
+
+      if (this.moveLeft || this.moveRight) {
+        this.velocity.x -= this.direction.x * 400.0 * delta;
+      }
+    }
+  }
+
+  get Velocity() {
+    return this.velocity;
+  }
+
+}
 // CONCATENATED MODULE: ./src/app/client/game/controls/pointer-lock-controls.ts
 
 
@@ -60919,6 +61011,53 @@ class pointer_lock_controls_PointerLockControls extends EventDispatcher {
     };
 
     this.connect();
+  }
+
+}
+// CONCATENATED MODULE: ./src/app/client/game/controls/controls.ts
+
+
+
+class controls_Controls {
+  constructor(camera, domElement, onLock, onUnlock) {
+    this.movementControls = new movement_controls_MovementControls();
+    this.pointerLockControls = new pointer_lock_controls_PointerLockControls(camera, domElement);
+    this.pointerLockControls.addEventListener('lock', onLock);
+    this.pointerLockControls.addEventListener('unlock', onUnlock);
+    this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0, 10);
+  }
+
+  update(delta, objects) {
+    if (this.pointerLockControls.isLocked === true) {
+      this.raycaster.ray.origin.copy(this.pointerLockControls.camera.position);
+      this.raycaster.ray.origin.y -= 10;
+      const intersections = this.raycaster.intersectObjects(objects, false);
+      const onObject = intersections.length > 0;
+      this.movementControls.update(delta, this.pointerLockControls.isLocked);
+
+      if (onObject === true) {
+        this.movementControls.Velocity.y = Math.max(0, this.movementControls.Velocity.y);
+        this.movementControls.canJump = true;
+      }
+
+      this.pointerLockControls.moveRight(-this.movementControls.Velocity.x * delta);
+      this.pointerLockControls.moveForward(-this.movementControls.Velocity.z * delta);
+      this.pointerLockControls.camera.position.y += this.movementControls.Velocity.y * delta;
+
+      if (this.pointerLockControls.camera.position.y < 10) {
+        this.movementControls.Velocity.y = 0;
+        this.pointerLockControls.camera.position.y = 10;
+        this.movementControls.canJump = true;
+      }
+    }
+  }
+
+  lock() {
+    this.pointerLockControls.lock();
+  }
+
+  get isLocked() {
+    return this.pointerLockControls.isLocked;
   }
 
 }
@@ -65289,15 +65428,7 @@ const runGame = () => {
   let controls;
   let gun;
   const objects = [];
-  let raycaster;
-  let moveForward = false;
-  let moveBackward = false;
-  let moveLeft = false;
-  let moveRight = false;
-  let canJump = false;
   let prevTime = performance.now();
-  const velocity = new Vector3();
-  const direction = new Vector3();
   const vertex = new Vector3();
   const color = new Color();
   init();
@@ -65312,84 +65443,25 @@ const runGame = () => {
     const light = new HemisphereLight(0xeeeeff, 0x777788, 0.75);
     light.position.set(0.5, 1, 0.75);
     scene.add(light);
-    controls = new pointer_lock_controls_PointerLockControls(camera, document.body);
     const overlay = document.getElementById('overlay');
     const playButton = document.getElementById('play-button');
+    controls = new controls_Controls(camera, document.body, () => {
+      if (overlay) {
+        overlay.style.display = 'none';
+      }
+    }, () => {
+      if (overlay) {
+        overlay.style.display = 'flex';
+      }
+    });
 
-    if (overlay && playButton) {
+    if (playButton) {
       playButton.addEventListener('click', function () {
         controls.lock();
       });
-      controls.addEventListener('lock', function () {
-        overlay.style.display = 'none';
-      });
-      controls.addEventListener('unlock', function () {
-        overlay.style.display = 'flex';
-      });
     }
 
-    scene.add(controls.camera);
-
-    const onKeyDown = function (event) {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          console.log('move forward');
-          moveForward = true;
-          break;
-
-        case 'ArrowLeft':
-        case 'KeyA':
-          moveLeft = true;
-          break;
-
-        case 'ArrowDown':
-        case 'KeyS':
-          moveBackward = true;
-          break;
-
-        case 'ArrowRight':
-        case 'KeyD':
-          moveRight = true;
-          break;
-
-        case 'Space':
-          if (canJump === true) {
-            velocity.y += 350;
-          }
-
-          canJump = false;
-          break;
-      }
-    };
-
-    const onKeyUp = function (event) {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          moveForward = false;
-          break;
-
-        case 'ArrowLeft':
-        case 'KeyA':
-          moveLeft = false;
-          break;
-
-        case 'ArrowDown':
-        case 'KeyS':
-          moveBackward = false;
-          break;
-
-        case 'ArrowRight':
-        case 'KeyD':
-          moveRight = false;
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
-    raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0, 10);
+    scene.add(camera);
     let floorGeometry = new PlaneGeometry(2000, 2000, 100, 100);
     floorGeometry.rotateX(-Math.PI / 2);
     let position = floorGeometry.attributes.position;
@@ -65462,46 +65534,9 @@ const runGame = () => {
   function animate() {
     requestAnimationFrame(animate);
     const time = performance.now();
-
-    if (controls.isLocked === true) {
-      raycaster.ray.origin.copy(controls.camera.position);
-      raycaster.ray.origin.y -= 10;
-      const intersections = raycaster.intersectObjects(objects, false);
-      const onObject = intersections.length > 0;
-      const delta = (time - prevTime) / 1000;
-      velocity.x -= velocity.x * 10.0 * delta;
-      velocity.z -= velocity.z * 10.0 * delta;
-      velocity.y -= 9.8 * 100.0 * delta;
-      direction.z = Number(moveForward) - Number(moveBackward);
-      direction.x = Number(moveRight) - Number(moveLeft);
-      direction.normalize();
-
-      if (moveForward || moveBackward) {
-        velocity.z -= direction.z * 400.0 * delta;
-      }
-
-      if (moveLeft || moveRight) {
-        velocity.x -= direction.x * 400.0 * delta;
-      }
-
-      if (onObject === true) {
-        velocity.y = Math.max(0, velocity.y);
-        canJump = true;
-      }
-
-      controls.moveRight(-velocity.x * delta);
-      controls.moveForward(-velocity.z * delta);
-      controls.camera.position.y += velocity.y * delta;
-
-      if (controls.camera.position.y < 10) {
-        velocity.y = 0;
-        controls.camera.position.y = 10;
-        canJump = true;
-      }
-
-      gun.update(delta);
-    }
-
+    const delta = (time - prevTime) / 1000;
+    controls.update(delta, objects);
+    gun.update(delta);
     prevTime = time;
     renderer.render(scene, camera);
   }
