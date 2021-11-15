@@ -1,9 +1,13 @@
-import { Audio, AudioListener, AudioLoader, Camera, Raycaster, Scene, Vector2 } from 'three';
+import { Audio, AudioListener, AudioLoader, Camera, Group, Raycaster, Scene, Vector2 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export class FirstPersonGun {
    private raycaster: Raycaster;
    private mousePosition: Vector2;
+   private bob = 0;
+   private isBobbing = false;
+   private gunModel: Group | undefined;
+   private downKey: string | undefined;
 
    public constructor(camera: Camera, scene: Scene) {
       const loader = new GLTFLoader();
@@ -15,6 +19,7 @@ export class FirstPersonGun {
             model.scene.position.set(1, -0.5, -1.5);
             model.scene.rotation.set(0, (Math.PI * 2) / 4 + Math.PI, 0);
             model.scene.scale.set(2, 2, 2);
+            this.gunModel = model.scene;
             camera.add(model.scene);
          },
          undefined,
@@ -56,5 +61,39 @@ export class FirstPersonGun {
          }
          sound.play();
       });
+
+      document.addEventListener('keydown', (event: KeyboardEvent) => {
+         switch (event.code) {
+            case 'ArrowUp':
+            case 'KeyW':
+            case 'ArrowLeft':
+            case 'KeyA':
+            case 'ArrowDown':
+            case 'KeyS':
+            case 'ArrowRight':
+            case 'KeyD':
+               if (!this.downKey) {
+                  this.downKey = event.code;
+               }
+               this.isBobbing = true;
+               break;
+         }
+      });
+
+      document.addEventListener('keyup', (event: KeyboardEvent) => {
+         if (event.code === this.downKey) {
+            this.isBobbing = false;
+            this.downKey = undefined;
+         }
+      });
+   }
+
+   public update(delta: number): void {
+      if (this.isBobbing) {
+         this.bob += delta * 10;
+         this.bob = this.bob % Number.MAX_VALUE;
+         const bobAmount = Math.sin(this.bob) * 0.02;
+         this.gunModel?.position.setY(-0.5 + bobAmount);
+      }
    }
 }

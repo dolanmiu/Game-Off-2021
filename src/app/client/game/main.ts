@@ -248,6 +248,7 @@ export const runGame = (): void => {
 
             canJump = true;
          }
+         gun.update(delta);
       }
 
       prevTime = time;
