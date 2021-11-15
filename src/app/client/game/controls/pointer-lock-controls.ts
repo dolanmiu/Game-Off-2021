@@ -10,7 +10,7 @@ const _unlockEvent = { type: 'unlock' };
 
 const _PI_2 = Math.PI / 2;
 
-class PointerLockControls extends EventDispatcher {
+export class PointerLockControls extends EventDispatcher {
    public isLocked = false;
    public connect;
    public disconnect;
@@ -112,5 +112,3 @@ class PointerLockControls extends EventDispatcher {
       this.connect();
    }
 }
-
-export { PointerLockControls };
