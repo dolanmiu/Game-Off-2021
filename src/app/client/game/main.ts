@@ -61,7 +61,7 @@ export const runGame = (): void => {
          });
       }
 
-      scene.add(controls.camera);
+      scene.add(camera);
 
       const onKeyDown = function (event: KeyboardEvent) {
          switch (event.code) {
