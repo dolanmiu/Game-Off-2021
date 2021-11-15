@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1636936094728"
+module.exports = __webpack_require__.p + "0.main.worker.js?1636940624357"
 
 /***/ }),
 /* 29 */
@@ -60922,8 +60922,6 @@ class pointer_lock_controls_PointerLockControls extends EventDispatcher {
   }
 
 }
-
-
 // CONCATENATED MODULE: ./node_modules/three/examples/jsm/loaders/GLTFLoader.js
 
 
@@ -65205,12 +65203,15 @@ function toTrianglesDrawMode( geometry, drawMode ) {
 
 class first_person_gun_FirstPersonGun {
   constructor(camera, scene) {
+    this.bob = 0;
+    this.isBobbing = false;
     const loader = new GLTFLoader_GLTFLoader();
     loader.load('assets/models/hand-gun.glb', model => {
       console.log(model);
       model.scene.position.set(1, -0.5, -1.5);
       model.scene.rotation.set(0, Math.PI * 2 / 4 + Math.PI, 0);
       model.scene.scale.set(2, 2, 2);
+      this.gunModel = model.scene;
       camera.add(model.scene);
     }, undefined, error => {
       console.error(error);
@@ -65239,6 +65240,41 @@ class first_person_gun_FirstPersonGun {
 
       sound.play();
     });
+    document.addEventListener('keydown', event => {
+      switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+        case 'ArrowLeft':
+        case 'KeyA':
+        case 'ArrowDown':
+        case 'KeyS':
+        case 'ArrowRight':
+        case 'KeyD':
+          if (!this.downKey) {
+            this.downKey = event.code;
+          }
+
+          this.isBobbing = true;
+          break;
+      }
+    });
+    document.addEventListener('keyup', event => {
+      if (event.code === this.downKey) {
+        this.isBobbing = false;
+        this.downKey = undefined;
+      }
+    });
+  }
+
+  update(delta) {
+    var _a;
+
+    if (this.isBobbing) {
+      this.bob += delta * 10;
+      this.bob = this.bob % Number.MAX_VALUE;
+      const bobAmount = Math.sin(this.bob) * 0.02;
+      (_a = this.gunModel) === null || _a === void 0 ? void 0 : _a.position.setY(-0.5 + bobAmount);
+    }
   }
 
 }
@@ -65462,6 +65498,8 @@ const runGame = () => {
         controls.camera.position.y = 10;
         canJump = true;
       }
+
+      gun.update(delta);
     }
 
     prevTime = time;
