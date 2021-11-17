@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { Controls } from './controls/controls';
 import { FirstPersonGun } from './gun/first-person-gun';
 import { LevelGenerator } from './level/level-generator';
+import { Player } from './player/player';
 
 export const runGame = (): void => {
    let camera: THREE.PerspectiveCamera;
@@ -31,6 +32,8 @@ export const runGame = (): void => {
 
       const overlay = document.getElementById('overlay');
       const playButton = document.getElementById('play-button');
+
+      const player = new Player();
 
       controls = new Controls(
          camera,
