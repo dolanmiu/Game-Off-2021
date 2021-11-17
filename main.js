@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1637117979207"
+module.exports = __webpack_require__.p + "0.main.worker.js?1637190182613"
 
 /***/ }),
 /* 29 */
@@ -65498,7 +65498,54 @@ class level_generator_LevelGenerator {
   }
 
 }
+// CONCATENATED MODULE: ./src/app/client/game/player/inventory.ts
+var ItemCategory;
+
+(function (ItemCategory) {
+  ItemCategory[ItemCategory["Weapon"] = 0] = "Weapon";
+  ItemCategory[ItemCategory["Ammo"] = 1] = "Ammo";
+  ItemCategory[ItemCategory["Health"] = 2] = "Health";
+})(ItemCategory || (ItemCategory = {}));
+
+class Inventory {
+  constructor() {
+    this.items = new Map();
+  }
+
+  getCount(item) {
+    return this.items.get(item.id) || 0;
+  }
+
+  add(item) {
+    const itemCount = this.getCount(item) + 1;
+    this.items.set(item.id, itemCount);
+    return itemCount;
+  }
+
+  hasItem(item) {
+    return this.getCount(item) > 0;
+  }
+
+  useItem(item) {
+    if (!this.hasItem(item)) {
+      return false;
+    }
+
+    this.items.get(item.id);
+    return true;
+  }
+
+}
+// CONCATENATED MODULE: ./src/app/client/game/player/player.ts
+
+class player_Player {
+  constructor() {
+    this.inventory = new Inventory();
+  }
+
+}
 // CONCATENATED MODULE: ./src/app/client/game/main.ts
+
 
 
 
@@ -65525,6 +65572,7 @@ const runGame = () => {
     scene.add(light);
     const overlay = document.getElementById('overlay');
     const playButton = document.getElementById('play-button');
+    const player = new player_Player();
     controls = new controls_Controls(camera, document.body, () => {
       if (overlay) {
         overlay.style.display = 'none';
