@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1636948422250"
+module.exports = __webpack_require__.p + "0.main.worker.js?1637117979207"
 
 /***/ }),
 /* 29 */
@@ -31453,7 +31453,7 @@ class MeshDistanceMaterial extends Material {
 
 MeshDistanceMaterial.prototype.isMeshDistanceMaterial = true;
 
-const three_module_vertex = "void main() {\n\tgl_Position = vec4( position, 1.0 );\n}";
+const vertex = "void main() {\n\tgl_Position = vec4( position, 1.0 );\n}";
 
 const fragment = "uniform sampler2D shadow_pass;\nuniform vec2 resolution;\nuniform float radius;\n#include <packing>\nvoid main() {\n\tconst float samples = float( VSM_SAMPLES );\n\tfloat mean = 0.0;\n\tfloat squared_mean = 0.0;\n\tfloat uvStride = samples <= 1.0 ? 0.0 : 2.0 / ( samples - 1.0 );\n\tfloat uvStart = samples <= 1.0 ? 0.0 : - 1.0;\n\tfor ( float i = 0.0; i < samples; i ++ ) {\n\t\tfloat uvOffset = uvStart + i * uvStride;\n\t\t#ifdef HORIZONTAL_PASS\n\t\t\tvec2 distribution = unpackRGBATo2Half( texture2D( shadow_pass, ( gl_FragCoord.xy + vec2( uvOffset, 0.0 ) * radius ) / resolution ) );\n\t\t\tmean += distribution.x;\n\t\t\tsquared_mean += distribution.y * distribution.y + distribution.x * distribution.x;\n\t\t#else\n\t\t\tfloat depth = unpackRGBAToDepth( texture2D( shadow_pass, ( gl_FragCoord.xy + vec2( 0.0, uvOffset ) * radius ) / resolution ) );\n\t\t\tmean += depth;\n\t\t\tsquared_mean += depth * depth;\n\t\t#endif\n\t}\n\tmean = mean / samples;\n\tsquared_mean = squared_mean / samples;\n\tfloat std_dev = sqrt( squared_mean - mean * mean );\n\tgl_FragColor = pack2HalfToRGBA( vec2( mean, std_dev ) );\n}";
 
@@ -31485,7 +31485,7 @@ function WebGLShadowMap( _renderer, _objects, _capabilities ) {
 			radius: { value: 4.0 }
 		},
 
-		vertexShader: three_module_vertex,
+		vertexShader: vertex,
 		fragmentShader: fragment
 
 	} );
@@ -65417,7 +65417,89 @@ class first_person_gun_FirstPersonGun {
   }
 
 }
+// CONCATENATED MODULE: ./src/app/client/game/level/level-meta-data.ts
+const LEVEL_META_DATA = {
+  map: [[0, 0, 0, 0, 1], [0, 1, 0, 0, 0], [0, 1, 0, 1, 0], [0, 1, 0, 0, 0]]
+};
+// CONCATENATED MODULE: ./src/app/client/game/level/level-generator.ts
+
+
+class level_generator_LevelGenerator {
+  constructor(scene) {
+    this.vertex = new Vector3();
+    this.color = new Color();
+    this.objects = [];
+    LEVEL_META_DATA;
+    let floorGeometry = new PlaneGeometry(2000, 2000, 100, 100);
+    floorGeometry.rotateX(-Math.PI / 2);
+    let position = floorGeometry.attributes.position;
+
+    for (let i = 0, l = position.count; i < l; i++) {
+      this.vertex.fromBufferAttribute(position, i);
+      this.vertex.x += Math.random() * 20 - 10;
+      this.vertex.y += Math.random() * 2;
+      this.vertex.z += Math.random() * 20 - 10;
+      position.setXYZ(i, this.vertex.x, this.vertex.y, this.vertex.z);
+    }
+
+    floorGeometry = floorGeometry.toNonIndexed();
+    position = floorGeometry.attributes.position;
+    const colorsFloor = [];
+
+    for (let i = 0, l = position.count; i < l; i++) {
+      this.color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+      colorsFloor.push(this.color.r, this.color.g, this.color.b);
+    }
+
+    floorGeometry.setAttribute('color', new Float32BufferAttribute(colorsFloor, 3));
+    const floorMaterial = new MeshBasicMaterial({
+      vertexColors: true
+    });
+    const floor = new Mesh(floorGeometry, floorMaterial);
+    scene.add(floor);
+    const boxGeometry = new BoxGeometry(20, 20, 20).toNonIndexed();
+    position = boxGeometry.attributes.position;
+    const colorsBox = [];
+
+    for (let i = 0, l = position.count; i < l; i++) {
+      this.color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+      colorsBox.push(this.color.r, this.color.g, this.color.b);
+    }
+
+    boxGeometry.setAttribute('color', new Float32BufferAttribute(colorsBox, 3));
+
+    for (let i = 0; i < LEVEL_META_DATA.map.length; i++) {
+      for (let j = 0; j < LEVEL_META_DATA.map[i].length; j++) {
+        const cell = LEVEL_META_DATA.map[i][j];
+
+        switch (cell) {
+          case 1:
+            {
+              const boxMaterial = new MeshPhongMaterial({
+                specular: 0xffffff,
+                flatShading: true,
+                vertexColors: true
+              });
+              boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+              const box = new Mesh(boxGeometry, boxMaterial);
+              box.position.x = i * 20;
+              box.position.y = 10;
+              box.position.z = j * 20;
+              scene.add(box);
+              this.objects.push(box);
+            }
+        }
+      }
+    }
+  }
+
+  get Objects() {
+    return this.objects;
+  }
+
+}
 // CONCATENATED MODULE: ./src/app/client/game/main.ts
+
 
 
 
@@ -65427,10 +65509,8 @@ const runGame = () => {
   let renderer;
   let controls;
   let gun;
-  const objects = [];
+  let levelGenerator;
   let prevTime = performance.now();
-  const vertex = new Vector3();
-  const color = new Color();
   init();
   animate();
 
@@ -65462,59 +65542,7 @@ const runGame = () => {
     }
 
     scene.add(camera);
-    let floorGeometry = new PlaneGeometry(2000, 2000, 100, 100);
-    floorGeometry.rotateX(-Math.PI / 2);
-    let position = floorGeometry.attributes.position;
-
-    for (let i = 0, l = position.count; i < l; i++) {
-      vertex.fromBufferAttribute(position, i);
-      vertex.x += Math.random() * 20 - 10;
-      vertex.y += Math.random() * 2;
-      vertex.z += Math.random() * 20 - 10;
-      position.setXYZ(i, vertex.x, vertex.y, vertex.z);
-    }
-
-    floorGeometry = floorGeometry.toNonIndexed();
-    position = floorGeometry.attributes.position;
-    const colorsFloor = [];
-
-    for (let i = 0, l = position.count; i < l; i++) {
-      color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-      colorsFloor.push(color.r, color.g, color.b);
-    }
-
-    floorGeometry.setAttribute('color', new Float32BufferAttribute(colorsFloor, 3));
-    const floorMaterial = new MeshBasicMaterial({
-      vertexColors: true
-    });
-    const floor = new Mesh(floorGeometry, floorMaterial);
-    scene.add(floor);
-    const boxGeometry = new BoxGeometry(20, 20, 20).toNonIndexed();
-    position = boxGeometry.attributes.position;
-    const colorsBox = [];
-
-    for (let i = 0, l = position.count; i < l; i++) {
-      color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-      colorsBox.push(color.r, color.g, color.b);
-    }
-
-    boxGeometry.setAttribute('color', new Float32BufferAttribute(colorsBox, 3));
-
-    for (let i = 0; i < 500; i++) {
-      const boxMaterial = new MeshPhongMaterial({
-        specular: 0xffffff,
-        flatShading: true,
-        vertexColors: true
-      });
-      boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-      const box = new Mesh(boxGeometry, boxMaterial);
-      box.position.x = Math.floor(Math.random() * 20 - 10) * 20;
-      box.position.y = Math.floor(Math.random() * 20) * 20 + 10;
-      box.position.z = Math.floor(Math.random() * 20 - 10) * 20;
-      scene.add(box);
-      objects.push(box);
-    }
-
+    levelGenerator = new level_generator_LevelGenerator(scene);
     gun = new first_person_gun_FirstPersonGun(camera, scene);
     renderer = new WebGLRenderer({
       antialias: true
@@ -65522,20 +65550,18 @@ const runGame = () => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-    window.addEventListener('resize', onWindowResize);
-  }
-
-  function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   }
 
   function animate() {
     requestAnimationFrame(animate);
     const time = performance.now();
     const delta = (time - prevTime) / 1000;
-    controls.update(delta, objects);
+    controls.update(delta, levelGenerator.Objects);
     gun.update(delta);
     prevTime = time;
     renderer.render(scene, camera);
