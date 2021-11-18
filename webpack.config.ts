@@ -135,6 +135,9 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
                'theme-color': '#000000',
             },
          }),
+         new CopyWebpackPlugin({
+            patterns: [{ from: 'src/app/client/assets', to: 'assets' }],
+         }),
       );
 
       // plugins.push(
