@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1637190182613"
+module.exports = __webpack_require__.p + "0.main.worker.js?1637199590984"
 
 /***/ }),
 /* 29 */
@@ -65375,6 +65375,10 @@ class first_person_gun_FirstPersonGun {
 
       for (let i = 0; i < intersects.length; i++) {
         console.log('shooting at', intersects[i].object);
+      }
+
+      if (sound.isPlaying) {
+        sound.stop();
       }
 
       sound.play();
