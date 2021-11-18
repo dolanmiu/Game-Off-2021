@@ -59,6 +59,9 @@ export class FirstPersonGun {
             console.log('shooting at', intersects[i].object);
             //  intersects[i].object.material.color.set(0xff0000);
          }
+         if (sound.isPlaying) {
+            sound.stop();
+         }
          sound.play();
       });
 
