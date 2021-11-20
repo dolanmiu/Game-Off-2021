@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1637367223953"
+module.exports = __webpack_require__.p + "0.main.worker.js?1637387814146"
 
 /***/ }),
 /* 29 */
@@ -65337,6 +65337,71 @@ function toTrianglesDrawMode( geometry, drawMode ) {
 
 
 
+// CONCATENATED MODULE: ./src/app/client/game/util/model-loader.ts
+
+const model_loader_loader = new GLTFLoader_GLTFLoader();
+const mem = new Map();
+
+const loadObject = async assetPath => {
+  const model = await model_loader_loader.loadAsync(assetPath);
+  return model;
+};
+
+const memoizedLoad = async assetPath => {
+  if (mem.has(assetPath)) {
+    return mem.get(assetPath);
+  }
+
+  const item = await loadObject(assetPath);
+  mem.set(assetPath, item);
+  return item;
+};
+// CONCATENATED MODULE: ./src/app/client/game/enemy/enemy-factory.ts
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return _arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return _arrayLikeToArray(o, minLen); } }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+
+
+const enemies = [];
+const enemyFactoryUpdateLoop = delta => {
+  var _iterator = _createForOfIteratorHelper(enemies),
+      _step;
+
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      const {
+        mixer,
+        animations
+      } = _step.value;
+      mixer.update(delta);
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
+};
+const createEnemy = async ({
+  position
+}) => {
+  const gltf = await memoizedLoad('assets/models/hench-ant.glb');
+  const model = gltf.scene;
+  model.position.set(position.x, position.y, position.z);
+  model.scale.set(10, 10, 10);
+  model.rotation.set(0, Math.PI * 2 / 4 + Math.PI, 0);
+  const mixer = new AnimationMixer(model);
+  console.log(gltf.animations);
+  const clip = gltf.animations[2];
+  mixer.clipAction(clip).play();
+  enemies.push({
+    mixer,
+    animations: gltf.animations
+  });
+  return model;
+};
 // CONCATENATED MODULE: ./src/app/client/game/gun/first-person-gun.ts
 
 
@@ -65422,19 +65487,17 @@ class first_person_gun_FirstPersonGun {
 
 }
 // CONCATENATED MODULE: ./src/app/client/game/item/item-factory.ts
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
+function item_factory_createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = item_factory_unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return _arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return _arrayLikeToArray(o, minLen); } }
+function item_factory_unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return item_factory_arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return item_factory_arrayLikeToArray(o, minLen); } }
 
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function item_factory_arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 
 
-const item_factory_loader = new GLTFLoader_GLTFLoader();
-let item = undefined;
 const items = [];
 const itemFactoryUpdateLoop = time => {
-  var _iterator = _createForOfIteratorHelper(items),
+  var _iterator = item_factory_createForOfIteratorHelper(items),
       _step;
 
   try {
@@ -65449,27 +65512,13 @@ const itemFactoryUpdateLoop = time => {
     _iterator.f();
   }
 };
-
-const loadObject = async () => {
-  const model = await item_factory_loader.loadAsync('assets/models/ammo-box.glb');
-  item = model.scene;
-  return item;
-};
-
-const memoizedLoad = async () => {
-  if (item !== undefined) {
-    return item;
-  }
-
-  return loadObject();
-};
-
 const createItem = async ({
   position
 }) => {
   const parent = new Object3D();
   parent.position.set(position.x, position.y, position.z);
-  const object = (await memoizedLoad()).clone();
+  const gltf = await memoizedLoad('assets/models/ammo-box.glb');
+  const object = gltf.scene.clone();
   object.scale.set(6, 6, 6);
   parent.add(object);
   items.push(parent);
@@ -65609,6 +65658,7 @@ class player_Player {
 
 
 
+
 const runGame = async () => {
   let camera;
   let scene;
@@ -65635,6 +65685,10 @@ const runGame = async () => {
       position: new Vector3(10, 20, 10)
     });
     scene.add(object);
+    const ant = await createEnemy({
+      position: new Vector3(10, 0, 10)
+    });
+    scene.add(ant);
     const player = new player_Player();
     controls = new controls_Controls(camera, document.body, () => {
       if (overlay) {
@@ -65676,6 +65730,7 @@ const runGame = async () => {
     gun.update(delta);
     prevTime = time;
     itemFactoryUpdateLoop(time);
+    enemyFactoryUpdateLoop(delta);
     renderer.render(scene, camera);
   }
 };
