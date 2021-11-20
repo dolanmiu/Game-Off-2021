@@ -2,10 +2,11 @@ import * as THREE from 'three';
 
 import { Controls } from './controls/controls';
 import { FirstPersonGun } from './gun/first-person-gun';
+import { createItem, itemFactoryUpdateLoop } from './item/item-factory';
 import { LevelGenerator } from './level/level-generator';
 import { Player } from './player/player';
 
-export const runGame = (): void => {
+export const runGame = async (): Promise<void> => {
    let camera: THREE.PerspectiveCamera;
    let scene: THREE.Scene;
    let renderer: THREE.WebGLRenderer;
@@ -15,10 +16,10 @@ export const runGame = (): void => {
 
    let prevTime = performance.now();
 
-   init();
+   await init();
    animate();
 
-   function init() {
+   async function init() {
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
       camera.position.y = 10;
 
@@ -26,12 +27,18 @@ export const runGame = (): void => {
       scene.background = new THREE.Color(0xffffff);
       scene.fog = new THREE.Fog(0xffffff, 0, 750);
 
-      const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
+      const light = new THREE.AmbientLight(0xeeeeff, 20);
       light.position.set(0.5, 1, 0.75);
       scene.add(light);
 
       const overlay = document.getElementById('overlay');
       const playButton = document.getElementById('play-button');
+
+      const object = await createItem({
+         position: new THREE.Vector3(10, 20, 10),
+      });
+
+      scene.add(object);
 
       const player = new Player();
 
@@ -82,6 +89,8 @@ export const runGame = (): void => {
       controls.update(delta, levelGenerator.Objects);
       gun.update(delta);
       prevTime = time;
+
+      itemFactoryUpdateLoop(time);
       renderer.render(scene, camera);
    }
 };
