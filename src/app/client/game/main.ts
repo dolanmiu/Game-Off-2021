@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import { Controls } from './controls/controls';
+import { createEnemy, enemyFactoryUpdateLoop } from './enemy/enemy-factory';
 import { FirstPersonGun } from './gun/first-person-gun';
 import { createItem, itemFactoryUpdateLoop } from './item/item-factory';
 import { LevelGenerator } from './level/level-generator';
@@ -39,6 +40,12 @@ export const runGame = async (): Promise<void> => {
       });
 
       scene.add(object);
+
+      const ant = await createEnemy({
+         position: new THREE.Vector3(10, 0, 10),
+      });
+
+      scene.add(ant);
 
       const player = new Player();
 
@@ -91,6 +98,7 @@ export const runGame = async (): Promise<void> => {
       prevTime = time;
 
       itemFactoryUpdateLoop(time);
+      enemyFactoryUpdateLoop(delta);
       renderer.render(scene, camera);
    }
 };

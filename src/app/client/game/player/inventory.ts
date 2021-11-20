@@ -14,7 +14,7 @@ export class Inventory {
    items: Map<string, number> = new Map();
 
    // gets the count of a certain item in the inventory
-   public getCount(item: Item) {
+   public getCount(item: Item): number {
       return this.items.get(item.id) || 0;
    }
 
