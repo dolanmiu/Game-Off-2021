@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1637743795690"
+module.exports = __webpack_require__.p + "0.main.worker.js?1637744173038"
 
 /***/ }),
 /* 29 */
@@ -61088,24 +61088,24 @@ class controls_Controls {
     this.pointerLockControls.addEventListener('lock', onLock);
     this.pointerLockControls.addEventListener('unlock', onUnlock);
     this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0, 10);
-    this.raycasters = [new Raycaster(new Vector3(), new Vector3(1, 0, 0), 0, 5), new Raycaster(new Vector3(), new Vector3(-1, 0, 0), 0, 5), new Raycaster(new Vector3(), new Vector3(0, 0, 1), 0, 5), new Raycaster(new Vector3(), new Vector3(0, 0, -1), 0, 5)];
+    this.sphere = new Sphere(this.camera.position, 5);
   }
 
   update(delta, objects) {
     if (this.pointerLockControls.isLocked === true) {
       this.raycaster.ray.origin.copy(this.camera.position);
       this.raycaster.ray.origin.y -= 10;
-      const intersections = this.raycaster.intersectObjects(objects, false);
 
-      var _iterator = _createForOfIteratorHelper(this.raycasters),
+      var _iterator = _createForOfIteratorHelper(objects),
           _step;
 
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          const raycaster = _step.value;
-          raycaster.ray.origin.copy(this.camera.position);
+          const o = _step.value;
+          this.sphere.center = this.camera.position;
+          const boundingBox = new Box3().setFromObject(o);
 
-          if (raycaster.intersectObjects(objects, false).length > 0) {
+          if (this.sphere.intersectsBox(boundingBox)) {
             this.movementControls.Velocity.z = 0;
             this.movementControls.Velocity.x = 0;
           }
@@ -61118,7 +61118,7 @@ class controls_Controls {
 
       this.movementControls.update(delta, this.pointerLockControls.isLocked);
 
-      if (intersections.length > 0) {
+      if (this.raycaster.intersectObjects(objects, false).length > 0) {
         this.movementControls.Velocity.y = Math.max(0, this.movementControls.Velocity.y);
         this.movementControls.canJump = true;
       }
