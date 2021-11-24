@@ -76,7 +76,7 @@ export class LevelGenerator {
 
             switch (cell) {
                case 1: {
-                  const boxMaterial = new MeshPhongMaterial({ specular: 0xffffff, flatShading: true, vertexColors: true });
+                  const boxMaterial = new MeshBasicMaterial({ vertexColors: true });
                   boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
                   const box = new Mesh(boxGeometry, boxMaterial);
                   box.position.x = i * 20;

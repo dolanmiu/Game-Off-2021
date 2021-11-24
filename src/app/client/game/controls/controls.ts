@@ -1,14 +1,13 @@
 import { Camera, Object3D, Raycaster, Vector3 } from 'three';
-
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 import { MovementControls } from './movement-controls';
-import { PointerLockControls } from './pointer-lock-controls';
 
 export class Controls {
    private readonly pointerLockControls: PointerLockControls;
    private readonly movementControls: MovementControls;
    private readonly raycaster: THREE.Raycaster;
 
-   public constructor(camera: Camera, domElement: HTMLElement, onLock: () => void, onUnlock: () => void) {
+   public constructor(private readonly camera: Camera, domElement: HTMLElement, onLock: () => void, onUnlock: () => void) {
       this.movementControls = new MovementControls();
       this.pointerLockControls = new PointerLockControls(camera, domElement);
       this.pointerLockControls.addEventListener('lock', onLock);
@@ -19,7 +18,7 @@ export class Controls {
 
    public update(delta: number, objects: Object3D[]): void {
       if (this.pointerLockControls.isLocked === true) {
-         this.raycaster.ray.origin.copy(this.pointerLockControls.camera.position);
+         this.raycaster.ray.origin.copy(this.camera.position);
          this.raycaster.ray.origin.y -= 10;
 
          const intersections = this.raycaster.intersectObjects(objects, false);
@@ -36,11 +35,11 @@ export class Controls {
          this.pointerLockControls.moveRight(-this.movementControls.Velocity.x * delta);
          this.pointerLockControls.moveForward(-this.movementControls.Velocity.z * delta);
 
-         this.pointerLockControls.camera.position.y += this.movementControls.Velocity.y * delta; // new behavior
+         this.camera.position.y += this.movementControls.Velocity.y * delta; // new behavior
 
-         if (this.pointerLockControls.camera.position.y < 10) {
+         if (this.camera.position.y < 10) {
             this.movementControls.Velocity.y = 0;
-            this.pointerLockControls.camera.position.y = 10;
+            this.camera.position.y = 10;
 
             this.movementControls.canJump = true;
          }

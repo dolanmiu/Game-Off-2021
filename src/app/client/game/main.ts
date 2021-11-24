@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { BufferGeometry, PerspectiveCamera, Scene, Vector3 } from 'three';
+import { BufferGeometry, PerspectiveCamera, Vector3 } from 'three';
 
 import { Controls } from './controls/controls';
 import { createEnemy, enemyFactoryUpdateLoop } from './enemy/enemy-factory';
