@@ -1,4 +1,4 @@
-import { Camera, Object3D, Raycaster, Vector3 } from 'three';
+import { Box3, Camera, Object3D, Raycaster, Sphere, Vector3 } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 
 import { MovementControls } from './movement-controls';
@@ -6,8 +6,8 @@ import { MovementControls } from './movement-controls';
 export class Controls {
    private readonly pointerLockControls: PointerLockControls;
    private readonly movementControls: MovementControls;
-   private readonly raycaster: THREE.Raycaster;
-   private readonly raycasters: THREE.Raycaster[];
+   private readonly raycaster: Raycaster;
+   private readonly sphere: Sphere;
 
    public constructor(private readonly camera: Camera, domElement: HTMLElement, onLock: () => void, onUnlock: () => void) {
       this.movementControls = new MovementControls();
@@ -16,12 +16,8 @@ export class Controls {
       this.pointerLockControls.addEventListener('unlock', onUnlock);
 
       this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0, 10);
-      this.raycasters = [
-         new Raycaster(new Vector3(), new Vector3(1, 0, 0), 0, 5),
-         new Raycaster(new Vector3(), new Vector3(-1, 0, 0), 0, 5),
-         new Raycaster(new Vector3(), new Vector3(0, 0, 1), 0, 5),
-         new Raycaster(new Vector3(), new Vector3(0, 0, -1), 0, 5),
-      ];
+
+      this.sphere = new Sphere(this.camera.position, 5);
    }
 
    public update(delta: number, objects: Object3D[]): void {
@@ -29,18 +25,17 @@ export class Controls {
          this.raycaster.ray.origin.copy(this.camera.position);
          this.raycaster.ray.origin.y -= 10;
 
-         const intersections = this.raycaster.intersectObjects(objects, false);
-
-         for (const raycaster of this.raycasters) {
-            raycaster.ray.origin.copy(this.camera.position);
-            if (raycaster.intersectObjects(objects, false).length > 0) {
+         for (const o of objects) {
+            this.sphere.center = this.camera.position;
+            const boundingBox = new Box3().setFromObject(o);
+            if (this.sphere.intersectsBox(boundingBox)) {
                this.movementControls.Velocity.z = 0;
                this.movementControls.Velocity.x = 0;
             }
          }
 
          this.movementControls.update(delta, this.pointerLockControls.isLocked);
-         if (intersections.length > 0) {
+         if (this.raycaster.intersectObjects(objects, false).length > 0) {
             this.movementControls.Velocity.y = Math.max(0, this.movementControls.Velocity.y);
             this.movementControls.canJump = true;
          }
