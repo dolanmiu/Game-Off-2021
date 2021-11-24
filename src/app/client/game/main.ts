@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { BufferGeometry, PerspectiveCamera, Scene, Vector3 } from 'three';
 
 import { Controls } from './controls/controls';
 import { createEnemy, enemyFactoryUpdateLoop } from './enemy/enemy-factory';
@@ -70,6 +71,7 @@ export const runGame = async (): Promise<void> => {
          });
       }
 
+      createCrossHair(camera);
       scene.add(camera);
 
       levelGenerator = new LevelGenerator(scene);
@@ -102,3 +104,23 @@ export const runGame = async (): Promise<void> => {
       renderer.render(scene, camera);
    }
 };
+
+function createCrossHair(camera: PerspectiveCamera) {
+   const width = 0.02;
+   const height = 0.02;
+
+   const crosshair = new THREE.Line(
+      new BufferGeometry().setFromPoints([
+         new Vector3(0, height, 0),
+         new Vector3(0, -height, 0),
+         new Vector3(0, 0, 0),
+         new Vector3(width, 0, 0),
+         new Vector3(-width, 0, 0),
+      ]),
+      new THREE.LineBasicMaterial({ color: 0x000000 }),
+   );
+
+   crosshair.position.set(0, 0, -1);
+
+   camera.add(crosshair);
+}
