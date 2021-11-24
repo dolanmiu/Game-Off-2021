@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1637477301368"
+module.exports = __webpack_require__.p + "0.main.worker.js?1637730139781"
 
 /***/ }),
 /* 29 */
@@ -65659,6 +65659,7 @@ class player_Player {
 
 
 
+
 const runGame = async () => {
   let camera;
   let scene;
@@ -65706,6 +65707,7 @@ const runGame = async () => {
       });
     }
 
+    createCrossHair(camera);
     scene.add(camera);
     levelGenerator = new level_generator_LevelGenerator(scene);
     gun = new first_person_gun_FirstPersonGun(camera, scene);
@@ -65734,6 +65736,16 @@ const runGame = async () => {
     renderer.render(scene, camera);
   }
 };
+
+function createCrossHair(camera) {
+  const width = 0.02;
+  const height = 0.02;
+  const crosshair = new Line(new BufferGeometry().setFromPoints([new Vector3(0, height, 0), new Vector3(0, -height, 0), new Vector3(0, 0, 0), new Vector3(width, 0, 0), new Vector3(-width, 0, 0)]), new LineBasicMaterial({
+    color: 0x000000
+  }));
+  crosshair.position.set(0, 0, -1);
+  camera.add(crosshair);
+}
 // CONCATENATED MODULE: ./src/app/client/client-main.ts
 var client_main_decorate = undefined && undefined.__decorate || function (decorators, target, key, desc) {
   var c = arguments.length,
