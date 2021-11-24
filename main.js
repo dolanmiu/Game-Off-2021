@@ -4239,7 +4239,7 @@ module.exports = function (cssWithMappingToString) {
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1637730610791"
+module.exports = __webpack_require__.p + "0.main.worker.js?1637743795690"
 
 /***/ }),
 /* 29 */
@@ -60994,7 +60994,6 @@ class movement_controls_MovementControls {
       switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
-          console.log('move forward');
           this.moveForward = true;
           break;
 
@@ -61072,6 +61071,12 @@ class movement_controls_MovementControls {
 
 }
 // CONCATENATED MODULE: ./src/app/client/game/controls/controls.ts
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return _arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return _arrayLikeToArray(o, minLen); } }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 
 
 
@@ -61083,6 +61088,7 @@ class controls_Controls {
     this.pointerLockControls.addEventListener('lock', onLock);
     this.pointerLockControls.addEventListener('unlock', onUnlock);
     this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0, 10);
+    this.raycasters = [new Raycaster(new Vector3(), new Vector3(1, 0, 0), 0, 5), new Raycaster(new Vector3(), new Vector3(-1, 0, 0), 0, 5), new Raycaster(new Vector3(), new Vector3(0, 0, 1), 0, 5), new Raycaster(new Vector3(), new Vector3(0, 0, -1), 0, 5)];
   }
 
   update(delta, objects) {
@@ -61090,10 +61096,29 @@ class controls_Controls {
       this.raycaster.ray.origin.copy(this.camera.position);
       this.raycaster.ray.origin.y -= 10;
       const intersections = this.raycaster.intersectObjects(objects, false);
-      const onObject = intersections.length > 0;
+
+      var _iterator = _createForOfIteratorHelper(this.raycasters),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          const raycaster = _step.value;
+          raycaster.ray.origin.copy(this.camera.position);
+
+          if (raycaster.intersectObjects(objects, false).length > 0) {
+            this.movementControls.Velocity.z = 0;
+            this.movementControls.Velocity.x = 0;
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+
       this.movementControls.update(delta, this.pointerLockControls.isLocked);
 
-      if (onObject === true) {
+      if (intersections.length > 0) {
         this.movementControls.Velocity.y = Math.max(0, this.movementControls.Velocity.y);
         this.movementControls.canJump = true;
       }
@@ -65415,17 +65440,17 @@ const memoizedLoad = async assetPath => {
   return item;
 };
 // CONCATENATED MODULE: ./src/app/client/game/enemy/enemy-factory.ts
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
+function enemy_factory_createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = enemy_factory_unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return _arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return _arrayLikeToArray(o, minLen); } }
+function enemy_factory_unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return enemy_factory_arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return enemy_factory_arrayLikeToArray(o, minLen); } }
 
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function enemy_factory_arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 
 
 const enemies = [];
 const enemyFactoryUpdateLoop = delta => {
-  var _iterator = _createForOfIteratorHelper(enemies),
+  var _iterator = enemy_factory_createForOfIteratorHelper(enemies),
       _step;
 
   try {
