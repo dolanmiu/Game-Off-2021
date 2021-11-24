@@ -1,11 +1,13 @@
 import { Camera, Object3D, Raycaster, Vector3 } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
+
 import { MovementControls } from './movement-controls';
 
 export class Controls {
    private readonly pointerLockControls: PointerLockControls;
    private readonly movementControls: MovementControls;
    private readonly raycaster: THREE.Raycaster;
+   private readonly raycasters: THREE.Raycaster[];
 
    public constructor(private readonly camera: Camera, domElement: HTMLElement, onLock: () => void, onUnlock: () => void) {
       this.movementControls = new MovementControls();
@@ -14,6 +16,12 @@ export class Controls {
       this.pointerLockControls.addEventListener('unlock', onUnlock);
 
       this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0, 10);
+      this.raycasters = [
+         new Raycaster(new Vector3(), new Vector3(1, 0, 0), 0, 5),
+         new Raycaster(new Vector3(), new Vector3(-1, 0, 0), 0, 5),
+         new Raycaster(new Vector3(), new Vector3(0, 0, 1), 0, 5),
+         new Raycaster(new Vector3(), new Vector3(0, 0, -1), 0, 5),
+      ];
    }
 
    public update(delta: number, objects: Object3D[]): void {
@@ -23,11 +31,16 @@ export class Controls {
 
          const intersections = this.raycaster.intersectObjects(objects, false);
 
-         const onObject = intersections.length > 0;
+         for (const raycaster of this.raycasters) {
+            raycaster.ray.origin.copy(this.camera.position);
+            if (raycaster.intersectObjects(objects, false).length > 0) {
+               this.movementControls.Velocity.z = 0;
+               this.movementControls.Velocity.x = 0;
+            }
+         }
 
          this.movementControls.update(delta, this.pointerLockControls.isLocked);
-
-         if (onObject === true) {
+         if (intersections.length > 0) {
             this.movementControls.Velocity.y = Math.max(0, this.movementControls.Velocity.y);
             this.movementControls.canJump = true;
          }

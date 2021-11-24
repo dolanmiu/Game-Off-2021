@@ -14,7 +14,6 @@ export class MovementControls {
          switch (event.code) {
             case 'ArrowUp':
             case 'KeyW':
-               console.log('move forward');
                this.moveForward = true;
                break;
 
