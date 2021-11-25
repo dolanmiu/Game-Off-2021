@@ -6,7 +6,9 @@ import { createEnemy, enemyFactoryUpdateLoop } from './enemy/enemy-factory';
 import { FirstPersonGun } from './gun/first-person-gun';
 import { createItem, itemFactoryUpdateLoop } from './item/item-factory';
 import { LevelGenerator } from './level/level-generator';
+import { LEVEL_META_DATA } from './level/level-meta-data';
 import { Player } from './player/player';
+import { BLOCK_SIZE } from './util/constants';
 
 export const runGame = async (): Promise<void> => {
    let camera: THREE.PerspectiveCamera;
@@ -24,6 +26,8 @@ export const runGame = async (): Promise<void> => {
    async function init() {
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
       camera.position.y = 10;
+      camera.position.x = 20;
+      camera.position.z = 20;
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0xffffff);
@@ -42,9 +46,12 @@ export const runGame = async (): Promise<void> => {
 
       scene.add(object);
 
-      const ant = await createEnemy({
-         position: new THREE.Vector3(10, 0, 10),
-      });
+      const ant = await createEnemy(
+         {
+            position: new THREE.Vector3(5 * BLOCK_SIZE, 0, 5 * BLOCK_SIZE),
+         },
+         LEVEL_META_DATA.map,
+      );
 
       scene.add(ant);
 
@@ -100,7 +107,7 @@ export const runGame = async (): Promise<void> => {
       prevTime = time;
 
       itemFactoryUpdateLoop(time);
-      enemyFactoryUpdateLoop(delta);
+      enemyFactoryUpdateLoop(delta, camera.position);
       renderer.render(scene, camera);
    }
 };
