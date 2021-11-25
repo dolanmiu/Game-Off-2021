@@ -110,6 +110,7 @@ jobs:
    deploy-itch:
       name: Deploy to Itch 👾
       needs: [build-client, test, lint, prettier]
+      runs-on: ubuntu-latest
       steps:
          - name: Checkout 🛎️
            uses: actions/checkout@v2.3.1
