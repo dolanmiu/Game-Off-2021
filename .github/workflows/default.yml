@@ -107,3 +107,23 @@ jobs:
               heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
               heroku_app_name: 'game-off-2021'
               heroku_email: 'actions@github.com'
+   deploy-itch:
+      name: Deploy to Itch 👾
+      needs: [build-client, test, lint, prettier]
+      steps:
+         - name: Checkout 🛎️
+           uses: actions/checkout@v2.3.1
+         - name: Install 🔧
+           run: npm ci
+         - name: Download Artifact
+           uses: actions/download-artifact@master
+           with:
+              name: client-dist
+              path: dist/client
+         - uses: josephbmanley/butler-publish-itchio-action@master
+           env:
+              BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+              CHANNEL: 'html5'
+              ITCH_GAME: the-big-buggy
+              ITCH_USER: dolanmiu
+              PACKAGE: dist/client
