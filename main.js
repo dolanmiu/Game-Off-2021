@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 59);
+/******/ 	return __webpack_require__(__webpack_require__.s = 84);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -96,13 +96,13 @@
  * Visit the project page on [GitHub] (https://github.com/thiagobustamante/typescript-ioc).
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(19);
-const model_1 = __webpack_require__(13);
+__webpack_require__(28);
+const model_1 = __webpack_require__(16);
 exports.Scope = model_1.Scope;
 exports.BuildContext = model_1.BuildContext;
-const container_1 = __webpack_require__(20);
-const scopes_1 = __webpack_require__(40);
-var decorators_1 = __webpack_require__(41);
+const container_1 = __webpack_require__(29);
+const scopes_1 = __webpack_require__(49);
+var decorators_1 = __webpack_require__(50);
 exports.Inject = decorators_1.Inject;
 exports.Factory = decorators_1.Factory;
 exports.Singleton = decorators_1.Singleton;
@@ -269,7 +269,7 @@ class ContainerBuildContext extends model_1.BuildContext {
 /* unused harmony export Subscription */
 /* unused harmony export SubscriptionObserver */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Observable; });
-/* harmony import */ var _symbols__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var _symbols__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
 /**
  * Based on <https://raw.githubusercontent.com/zenparsing/zen-observable/master/src/Observable.js>
  * At commit: f63849a8c60af5d514efc8e9d6138d8273c49ad6
@@ -788,6 +788,19 @@ function unsubscribe(subscription) {
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+var DiagonalMovement = {
+    Always: 1,
+    Never: 2,
+    IfAtMostOneObstacle: 3,
+    OnlyWhenNoObstacles: 4
+};
+
+module.exports = DiagonalMovement;
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/* eslint-env browser */
@@ -1044,7 +1057,7 @@ function localstorage() {
 	}
 }
 
-module.exports = __webpack_require__(47)(exports);
+module.exports = __webpack_require__(56)(exports);
 
 const {formatters} = module.exports;
 
@@ -1060,10 +1073,10 @@ formatters.j = function (v) {
 	}
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12)))
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1080,7 +1093,7 @@ const $worker = Symbol("thread.worker");
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1102,7 +1115,7 @@ if (!hasSymbol("asyncIterator")) {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1177,8 +1190,260 @@ function serialize(input) {
 
 
 /***/ }),
-/* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */
+/***/ (function(module, exports) {
+
+/**
+ * Backtrace according to the parent records and return the path.
+ * (including both start and end nodes)
+ * @param {Node} node End node
+ * @return {Array<Array<number>>} the path
+ */
+function backtrace(node) {
+    var path = [[node.x, node.y]];
+    while (node.parent) {
+        node = node.parent;
+        path.push([node.x, node.y]);
+    }
+    return path.reverse();
+}
+exports.backtrace = backtrace;
+
+/**
+ * Backtrace from start and end node, and return the path.
+ * (including both start and end nodes)
+ * @param {Node}
+ * @param {Node}
+ */
+function biBacktrace(nodeA, nodeB) {
+    var pathA = backtrace(nodeA),
+        pathB = backtrace(nodeB);
+    return pathA.concat(pathB.reverse());
+}
+exports.biBacktrace = biBacktrace;
+
+/**
+ * Compute the length of the path.
+ * @param {Array<Array<number>>} path The path
+ * @return {number} The length of the path
+ */
+function pathLength(path) {
+    var i, sum = 0, a, b, dx, dy;
+    for (i = 1; i < path.length; ++i) {
+        a = path[i - 1];
+        b = path[i];
+        dx = a[0] - b[0];
+        dy = a[1] - b[1];
+        sum += Math.sqrt(dx * dx + dy * dy);
+    }
+    return sum;
+}
+exports.pathLength = pathLength;
+
+
+/**
+ * Given the start and end coordinates, return all the coordinates lying
+ * on the line formed by these coordinates, based on Bresenham's algorithm.
+ * http://en.wikipedia.org/wiki/Bresenham's_line_algorithm#Simplification
+ * @param {number} x0 Start x coordinate
+ * @param {number} y0 Start y coordinate
+ * @param {number} x1 End x coordinate
+ * @param {number} y1 End y coordinate
+ * @return {Array<Array<number>>} The coordinates on the line
+ */
+function interpolate(x0, y0, x1, y1) {
+    var abs = Math.abs,
+        line = [],
+        sx, sy, dx, dy, err, e2;
+
+    dx = abs(x1 - x0);
+    dy = abs(y1 - y0);
+
+    sx = (x0 < x1) ? 1 : -1;
+    sy = (y0 < y1) ? 1 : -1;
+
+    err = dx - dy;
+
+    while (true) {
+        line.push([x0, y0]);
+
+        if (x0 === x1 && y0 === y1) {
+            break;
+        }
+        
+        e2 = 2 * err;
+        if (e2 > -dy) {
+            err = err - dy;
+            x0 = x0 + sx;
+        }
+        if (e2 < dx) {
+            err = err + dx;
+            y0 = y0 + sy;
+        }
+    }
+
+    return line;
+}
+exports.interpolate = interpolate;
+
+
+/**
+ * Given a compressed path, return a new path that has all the segments
+ * in it interpolated.
+ * @param {Array<Array<number>>} path The path
+ * @return {Array<Array<number>>} expanded path
+ */
+function expandPath(path) {
+    var expanded = [],
+        len = path.length,
+        coord0, coord1,
+        interpolated,
+        interpolatedLen,
+        i, j;
+
+    if (len < 2) {
+        return expanded;
+    }
+
+    for (i = 0; i < len - 1; ++i) {
+        coord0 = path[i];
+        coord1 = path[i + 1];
+
+        interpolated = interpolate(coord0[0], coord0[1], coord1[0], coord1[1]);
+        interpolatedLen = interpolated.length;
+        for (j = 0; j < interpolatedLen - 1; ++j) {
+            expanded.push(interpolated[j]);
+        }
+    }
+    expanded.push(path[len - 1]);
+
+    return expanded;
+}
+exports.expandPath = expandPath;
+
+
+/**
+ * Smoothen the give path.
+ * The original path will not be modified; a new path will be returned.
+ * @param {PF.Grid} grid
+ * @param {Array<Array<number>>} path The path
+ */
+function smoothenPath(grid, path) {
+    var len = path.length,
+        x0 = path[0][0],        // path start x
+        y0 = path[0][1],        // path start y
+        x1 = path[len - 1][0],  // path end x
+        y1 = path[len - 1][1],  // path end y
+        sx, sy,                 // current start coordinate
+        ex, ey,                 // current end coordinate
+        newPath,
+        i, j, coord, line, testCoord, blocked;
+
+    sx = x0;
+    sy = y0;
+    newPath = [[sx, sy]];
+
+    for (i = 2; i < len; ++i) {
+        coord = path[i];
+        ex = coord[0];
+        ey = coord[1];
+        line = interpolate(sx, sy, ex, ey);
+
+        blocked = false;
+        for (j = 1; j < line.length; ++j) {
+            testCoord = line[j];
+
+            if (!grid.isWalkableAt(testCoord[0], testCoord[1])) {
+                blocked = true;
+                break;
+            }
+        }
+        if (blocked) {
+            lastValidCoord = path[i - 1];
+            newPath.push(lastValidCoord);
+            sx = lastValidCoord[0];
+            sy = lastValidCoord[1];
+        }
+    }
+    newPath.push([x1, y1]);
+
+    return newPath;
+}
+exports.smoothenPath = smoothenPath;
+
+
+/**
+ * Compress a path, remove redundant nodes without altering the shape
+ * The original path is not modified
+ * @param {Array<Array<number>>} path The path
+ * @return {Array<Array<number>>} The compressed path
+ */
+function compressPath(path) {
+
+    // nothing to compress
+    if(path.length < 3) {
+        return path;
+    }
+
+    var compressed = [],
+        sx = path[0][0], // start x
+        sy = path[0][1], // start y
+        px = path[1][0], // second point x
+        py = path[1][1], // second point y
+        dx = px - sx, // direction between the two points
+        dy = py - sy, // direction between the two points
+        lx, ly,
+        ldx, ldy,
+        sq, i;
+
+    // normalize the direction
+    sq = Math.sqrt(dx*dx + dy*dy);
+    dx /= sq;
+    dy /= sq;
+
+    // start the new path
+    compressed.push([sx,sy]);
+
+    for(i = 2; i < path.length; i++) {
+
+        // store the last point
+        lx = px;
+        ly = py;
+
+        // store the last direction
+        ldx = dx;
+        ldy = dy;
+
+        // next point
+        px = path[i][0];
+        py = path[i][1];
+
+        // next direction
+        dx = px - lx;
+        dy = py - ly;
+
+        // normalize
+        sq = Math.sqrt(dx*dx + dy*dy);
+        dx /= sq;
+        dy /= sq;
+
+        // if the direction has changed, store the point
+        if ( dx !== ldx || dy !== ldy ) {
+            compressed.push([lx,ly]);
+        }
+    }
+
+    // store the last point
+    compressed.push([px,py]);
+
+    return compressed;
+}
+exports.compressPath = compressPath;
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1288,7 +1553,7 @@ function filter(test) {
 /* harmony default export */ var dist_esm_filter = (filter);
 
 // EXTERNAL MODULE: ./node_modules/observable-fns/dist.esm/_symbols.js
-var _symbols = __webpack_require__(5);
+var _symbols = __webpack_require__(6);
 
 // CONCATENATED MODULE: ./node_modules/observable-fns/dist.esm/_util.js
 /// <reference lib="es2018" />
@@ -1461,7 +1726,7 @@ function merge(...observables) {
 /* harmony default export */ var dist_esm_merge = (merge);
 
 // EXTERNAL MODULE: ./node_modules/observable-fns/dist.esm/multicast.js
-var multicast = __webpack_require__(22);
+var multicast = __webpack_require__(31);
 
 // CONCATENATED MODULE: ./node_modules/observable-fns/dist.esm/scan.js
 var scan_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -1505,7 +1770,7 @@ function scan(accumulator, seed) {
 /* harmony default export */ var dist_esm_scan = (scan);
 
 // EXTERNAL MODULE: ./node_modules/observable-fns/dist.esm/subject.js
-var subject = __webpack_require__(15);
+var subject = __webpack_require__(20);
 
 // CONCATENATED MODULE: ./node_modules/observable-fns/dist.esm/index.js
 
@@ -1521,7 +1786,7 @@ var subject = __webpack_require__(15);
 
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1547,7 +1812,7 @@ var WorkerMessageType;
 
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1737,7 +2002,61 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 11 */
+/* 13 */
+/***/ (function(module, exports) {
+
+/**
+ * @namespace PF.Heuristic
+ * @description A collection of heuristic functions.
+ */
+module.exports = {
+
+  /**
+   * Manhattan distance.
+   * @param {number} dx - Difference in x.
+   * @param {number} dy - Difference in y.
+   * @return {number} dx + dy
+   */
+  manhattan: function(dx, dy) {
+      return dx + dy;
+  },
+
+  /**
+   * Euclidean distance.
+   * @param {number} dx - Difference in x.
+   * @param {number} dy - Difference in y.
+   * @return {number} sqrt(dx * dx + dy * dy)
+   */
+  euclidean: function(dx, dy) {
+      return Math.sqrt(dx * dx + dy * dy);
+  },
+
+  /**
+   * Octile distance.
+   * @param {number} dx - Difference in x.
+   * @param {number} dy - Difference in y.
+   * @return {number} sqrt(dx * dx + dy * dy) for grids
+   */
+  octile: function(dx, dy) {
+      var F = Math.SQRT2 - 1;
+      return (dx < dy) ? F * dx + dy : F * dy + dx;
+  },
+
+  /**
+   * Chebyshev distance.
+   * @param {number} dx - Difference in x.
+   * @param {number} dy - Difference in y.
+   * @return {number} max(dx, dy)
+   */
+  chebyshev: function(dx, dy) {
+      return Math.max(dx, dy);
+  }
+
+};
+
+
+/***/ }),
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1755,7 +2074,7 @@ var WorkerEventType;
 
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports) {
 
 var g;
@@ -1781,7 +2100,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 13 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1823,7 +2142,7 @@ exports.BuildContext = BuildContext;
 //# sourceMappingURL=model.js.map
 
 /***/ }),
-/* 14 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1838,7 +2157,134 @@ exports.$worker = Symbol("thread.worker");
 
 
 /***/ }),
-/* 15 */
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(69);
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * @author imor / https://github.com/imor
+ */
+var Heap       = __webpack_require__(18);
+var Util       = __webpack_require__(9);
+var Heuristic  = __webpack_require__(13);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * Base class for the Jump Point Search algorithm
+ * @param {object} opt
+ * @param {function} opt.heuristic Heuristic function to estimate the distance
+ *     (defaults to manhattan).
+ */
+function JumpPointFinderBase(opt) {
+    opt = opt || {};
+    this.heuristic = opt.heuristic || Heuristic.manhattan;
+    this.trackJumpRecursion = opt.trackJumpRecursion || false;
+}
+
+/**
+ * Find and return the path.
+ * @return {Array<Array<number>>} The path, including both start and
+ *     end positions.
+ */
+JumpPointFinderBase.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    var openList = this.openList = new Heap(function(nodeA, nodeB) {
+            return nodeA.f - nodeB.f;
+        }),
+        startNode = this.startNode = grid.getNodeAt(startX, startY),
+        endNode = this.endNode = grid.getNodeAt(endX, endY), node;
+
+    this.grid = grid;
+
+
+    // set the `g` and `f` value of the start node to be 0
+    startNode.g = 0;
+    startNode.f = 0;
+
+    // push the start node into the open list
+    openList.push(startNode);
+    startNode.opened = true;
+
+    // while the open list is not empty
+    while (!openList.empty()) {
+        // pop the position of node which has the minimum `f` value.
+        node = openList.pop();
+        node.closed = true;
+
+        if (node === endNode) {
+            return Util.expandPath(Util.backtrace(endNode));
+        }
+
+        this._identifySuccessors(node);
+    }
+
+    // fail to find the path
+    return [];
+};
+
+/**
+ * Identify successors for the given node. Runs a jump point search in the
+ * direction of each available neighbor, adding any points found to the open
+ * list.
+ * @protected
+ */
+JumpPointFinderBase.prototype._identifySuccessors = function(node) {
+    var grid = this.grid,
+        heuristic = this.heuristic,
+        openList = this.openList,
+        endX = this.endNode.x,
+        endY = this.endNode.y,
+        neighbors, neighbor,
+        jumpPoint, i, l,
+        x = node.x, y = node.y,
+        jx, jy, dx, dy, d, ng, jumpNode,
+        abs = Math.abs, max = Math.max;
+
+    neighbors = this._findNeighbors(node);
+    for(i = 0, l = neighbors.length; i < l; ++i) {
+        neighbor = neighbors[i];
+        jumpPoint = this._jump(neighbor[0], neighbor[1], x, y);
+        if (jumpPoint) {
+
+            jx = jumpPoint[0];
+            jy = jumpPoint[1];
+            jumpNode = grid.getNodeAt(jx, jy);
+
+            if (jumpNode.closed) {
+                continue;
+            }
+
+            // include distance, as parent may not be immediately adjacent:
+            d = Heuristic.octile(abs(jx - x), abs(jy - y));
+            ng = node.g + d; // next `g` value
+
+            if (!jumpNode.opened || ng < jumpNode.g) {
+                jumpNode.g = ng;
+                jumpNode.h = jumpNode.h || heuristic(abs(jx - endX), abs(jy - endY));
+                jumpNode.f = jumpNode.g + jumpNode.h;
+                jumpNode.parent = node;
+
+                if (!jumpNode.opened) {
+                    openList.push(jumpNode);
+                    jumpNode.opened = true;
+                } else {
+                    openList.updateItem(jumpNode);
+                }
+            }
+        }
+    }
+};
+
+module.exports = JumpPointFinderBase;
+
+
+/***/ }),
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1884,7 +2330,14 @@ class MulticastSubject extends _observable__WEBPACK_IMPORTED_MODULE_0__[/* defau
 
 
 /***/ }),
-/* 16 */
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(68);
+
+
+/***/ }),
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2001,11 +2454,364 @@ InjectorHandler.instantiationsBlocked = true;
 //# sourceMappingURL=injection-handler.js.map
 
 /***/ }),
-/* 17 */
+/* 23 */
+/***/ (function(module, exports) {
+
+/**
+ * A node in grid. 
+ * This class holds some basic information about a node and custom 
+ * attributes may be added, depending on the algorithms' needs.
+ * @constructor
+ * @param {number} x - The x coordinate of the node on the grid.
+ * @param {number} y - The y coordinate of the node on the grid.
+ * @param {boolean} [walkable] - Whether this node is walkable.
+ */
+function Node(x, y, walkable) {
+    /**
+     * The x coordinate of the node on the grid.
+     * @type number
+     */
+    this.x = x;
+    /**
+     * The y coordinate of the node on the grid.
+     * @type number
+     */
+    this.y = y;
+    /**
+     * Whether this node can be walked through.
+     * @type boolean
+     */
+    this.walkable = (walkable === undefined ? true : walkable);
+}
+
+module.exports = Node;
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Heap       = __webpack_require__(18);
+var Util       = __webpack_require__(9);
+var Heuristic  = __webpack_require__(13);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * A* path-finder. Based upon https://github.com/bgrins/javascript-astar
+ * @constructor
+ * @param {Object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching 
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ * @param {function} opt.heuristic Heuristic function to estimate the distance
+ *     (defaults to manhattan).
+ * @param {number} opt.weight Weight to apply to the heuristic to allow for
+ *     suboptimal paths, in order to speed up the search.
+ */
+function AStarFinder(opt) {
+    opt = opt || {};
+    this.allowDiagonal = opt.allowDiagonal;
+    this.dontCrossCorners = opt.dontCrossCorners;
+    this.heuristic = opt.heuristic || Heuristic.manhattan;
+    this.weight = opt.weight || 1;
+    this.diagonalMovement = opt.diagonalMovement;
+
+    if (!this.diagonalMovement) {
+        if (!this.allowDiagonal) {
+            this.diagonalMovement = DiagonalMovement.Never;
+        } else {
+            if (this.dontCrossCorners) {
+                this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
+            } else {
+                this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
+            }
+        }
+    }
+
+    // When diagonal movement is allowed the manhattan heuristic is not
+    //admissible. It should be octile instead
+    if (this.diagonalMovement === DiagonalMovement.Never) {
+        this.heuristic = opt.heuristic || Heuristic.manhattan;
+    } else {
+        this.heuristic = opt.heuristic || Heuristic.octile;
+    }
+}
+
+/**
+ * Find and return the the path.
+ * @return {Array<Array<number>>} The path, including both start and
+ *     end positions.
+ */
+AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    var openList = new Heap(function(nodeA, nodeB) {
+            return nodeA.f - nodeB.f;
+        }),
+        startNode = grid.getNodeAt(startX, startY),
+        endNode = grid.getNodeAt(endX, endY),
+        heuristic = this.heuristic,
+        diagonalMovement = this.diagonalMovement,
+        weight = this.weight,
+        abs = Math.abs, SQRT2 = Math.SQRT2,
+        node, neighbors, neighbor, i, l, x, y, ng;
+
+    // set the `g` and `f` value of the start node to be 0
+    startNode.g = 0;
+    startNode.f = 0;
+
+    // push the start node into the open list
+    openList.push(startNode);
+    startNode.opened = true;
+
+    // while the open list is not empty
+    while (!openList.empty()) {
+        // pop the position of node which has the minimum `f` value.
+        node = openList.pop();
+        node.closed = true;
+
+        // if reached the end position, construct the path and return it
+        if (node === endNode) {
+            return Util.backtrace(endNode);
+        }
+
+        // get neigbours of the current node
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
+
+            if (neighbor.closed) {
+                continue;
+            }
+
+            x = neighbor.x;
+            y = neighbor.y;
+
+            // get the distance between current node and the neighbor
+            // and calculate the next g score
+            ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
+
+            // check if the neighbor has not been inspected yet, or
+            // can be reached with smaller cost from the current node
+            if (!neighbor.opened || ng < neighbor.g) {
+                neighbor.g = ng;
+                neighbor.h = neighbor.h || weight * heuristic(abs(x - endX), abs(y - endY));
+                neighbor.f = neighbor.g + neighbor.h;
+                neighbor.parent = node;
+
+                if (!neighbor.opened) {
+                    openList.push(neighbor);
+                    neighbor.opened = true;
+                } else {
+                    // the neighbor can be reached with smaller cost.
+                    // Since its f value has been updated, we have to
+                    // update its position in the open list
+                    openList.updateItem(neighbor);
+                }
+            }
+        } // end for each neighbor
+    } // end while not open list empty
+
+    // fail to find the path
+    return [];
+};
+
+module.exports = AStarFinder;
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Heap       = __webpack_require__(18);
+var Util       = __webpack_require__(9);
+var Heuristic  = __webpack_require__(13);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * A* path-finder.
+ * based upon https://github.com/bgrins/javascript-astar
+ * @constructor
+ * @param {Object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ * @param {function} opt.heuristic Heuristic function to estimate the distance
+ *     (defaults to manhattan).
+ * @param {number} opt.weight Weight to apply to the heuristic to allow for
+ *     suboptimal paths, in order to speed up the search.
+ */
+function BiAStarFinder(opt) {
+    opt = opt || {};
+    this.allowDiagonal = opt.allowDiagonal;
+    this.dontCrossCorners = opt.dontCrossCorners;
+    this.diagonalMovement = opt.diagonalMovement;
+    this.heuristic = opt.heuristic || Heuristic.manhattan;
+    this.weight = opt.weight || 1;
+
+    if (!this.diagonalMovement) {
+        if (!this.allowDiagonal) {
+            this.diagonalMovement = DiagonalMovement.Never;
+        } else {
+            if (this.dontCrossCorners) {
+                this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
+            } else {
+                this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
+            }
+        }
+    }
+
+    //When diagonal movement is allowed the manhattan heuristic is not admissible
+    //It should be octile instead
+    if (this.diagonalMovement === DiagonalMovement.Never) {
+        this.heuristic = opt.heuristic || Heuristic.manhattan;
+    } else {
+        this.heuristic = opt.heuristic || Heuristic.octile;
+    }
+}
+
+/**
+ * Find and return the the path.
+ * @return {Array<Array<number>>} The path, including both start and
+ *     end positions.
+ */
+BiAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    var cmp = function(nodeA, nodeB) {
+            return nodeA.f - nodeB.f;
+        },
+        startOpenList = new Heap(cmp),
+        endOpenList = new Heap(cmp),
+        startNode = grid.getNodeAt(startX, startY),
+        endNode = grid.getNodeAt(endX, endY),
+        heuristic = this.heuristic,
+        diagonalMovement = this.diagonalMovement,
+        weight = this.weight,
+        abs = Math.abs, SQRT2 = Math.SQRT2,
+        node, neighbors, neighbor, i, l, x, y, ng,
+        BY_START = 1, BY_END = 2;
+
+    // set the `g` and `f` value of the start node to be 0
+    // and push it into the start open list
+    startNode.g = 0;
+    startNode.f = 0;
+    startOpenList.push(startNode);
+    startNode.opened = BY_START;
+
+    // set the `g` and `f` value of the end node to be 0
+    // and push it into the open open list
+    endNode.g = 0;
+    endNode.f = 0;
+    endOpenList.push(endNode);
+    endNode.opened = BY_END;
+
+    // while both the open lists are not empty
+    while (!startOpenList.empty() && !endOpenList.empty()) {
+
+        // pop the position of start node which has the minimum `f` value.
+        node = startOpenList.pop();
+        node.closed = true;
+
+        // get neigbours of the current node
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
+
+            if (neighbor.closed) {
+                continue;
+            }
+            if (neighbor.opened === BY_END) {
+                return Util.biBacktrace(node, neighbor);
+            }
+
+            x = neighbor.x;
+            y = neighbor.y;
+
+            // get the distance between current node and the neighbor
+            // and calculate the next g score
+            ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
+
+            // check if the neighbor has not been inspected yet, or
+            // can be reached with smaller cost from the current node
+            if (!neighbor.opened || ng < neighbor.g) {
+                neighbor.g = ng;
+                neighbor.h = neighbor.h ||
+                    weight * heuristic(abs(x - endX), abs(y - endY));
+                neighbor.f = neighbor.g + neighbor.h;
+                neighbor.parent = node;
+
+                if (!neighbor.opened) {
+                    startOpenList.push(neighbor);
+                    neighbor.opened = BY_START;
+                } else {
+                    // the neighbor can be reached with smaller cost.
+                    // Since its f value has been updated, we have to
+                    // update its position in the open list
+                    startOpenList.updateItem(neighbor);
+                }
+            }
+        } // end for each neighbor
+
+
+        // pop the position of end node which has the minimum `f` value.
+        node = endOpenList.pop();
+        node.closed = true;
+
+        // get neigbours of the current node
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
+
+            if (neighbor.closed) {
+                continue;
+            }
+            if (neighbor.opened === BY_START) {
+                return Util.biBacktrace(neighbor, node);
+            }
+
+            x = neighbor.x;
+            y = neighbor.y;
+
+            // get the distance between current node and the neighbor
+            // and calculate the next g score
+            ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
+
+            // check if the neighbor has not been inspected yet, or
+            // can be reached with smaller cost from the current node
+            if (!neighbor.opened || ng < neighbor.g) {
+                neighbor.g = ng;
+                neighbor.h = neighbor.h ||
+                    weight * heuristic(abs(x - startX), abs(y - startY));
+                neighbor.f = neighbor.g + neighbor.h;
+                neighbor.parent = node;
+
+                if (!neighbor.opened) {
+                    endOpenList.push(neighbor);
+                    neighbor.opened = BY_END;
+                } else {
+                    // the neighbor can be reached with smaller cost.
+                    // Since its f value has been updated, we have to
+                    // update its position in the open list
+                    endOpenList.updateItem(neighbor);
+                }
+            }
+        } // end for each neighbor
+    } // end while not open list empty
+
+    // fail to find the path
+    return [];
+};
+
+module.exports = BiAStarFinder;
+
+
+/***/ }),
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(36);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
 // Imports
 
@@ -2017,7 +2823,7 @@ ___CSS_LOADER_EXPORT___.push([module.i, "", ""]);
 
 
 /***/ }),
-/* 18 */
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2027,17 +2833,17 @@ __webpack_require__.d(__webpack_exports__, "a", function() { return /* binding *
 __webpack_require__.d(__webpack_exports__, "b", function() { return /* binding */ createProxyModule; });
 
 // EXTERNAL MODULE: ./node_modules/debug/src/browser.js
-var browser = __webpack_require__(3);
+var browser = __webpack_require__(4);
 var browser_default = /*#__PURE__*/__webpack_require__.n(browser);
 
 // EXTERNAL MODULE: ./node_modules/observable-fns/dist.esm/observable.js
 var observable = __webpack_require__(1);
 
 // EXTERNAL MODULE: ./node_modules/observable-fns/dist.esm/multicast.js
-var multicast = __webpack_require__(22);
+var multicast = __webpack_require__(31);
 
 // EXTERNAL MODULE: ./node_modules/threads/dist-esm/common.js + 1 modules
-var common = __webpack_require__(6);
+var common = __webpack_require__(7);
 
 // CONCATENATED MODULE: ./node_modules/threads/dist-esm/observable-promise.js
 
@@ -2184,10 +2990,10 @@ class observable_promise_ObservablePromise extends observable["b" /* default */]
 }
 
 // EXTERNAL MODULE: ./node_modules/threads/dist-esm/transferable.js
-var transferable = __webpack_require__(30);
+var transferable = __webpack_require__(39);
 
 // EXTERNAL MODULE: ./node_modules/threads/dist-esm/types/messages.js
-var messages = __webpack_require__(9);
+var messages = __webpack_require__(11);
 
 // CONCATENATED MODULE: ./node_modules/threads/dist-esm/master/invocation-proxy.js
 /*
@@ -2314,7 +3120,7 @@ function createProxyModule(worker, methodNames) {
 
 
 /***/ }),
-/* 19 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, global) {/*! *****************************************************************************
@@ -3449,18 +4255,18 @@ var Reflect;
     });
 })(Reflect || (Reflect = {}));
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10), __webpack_require__(12)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12), __webpack_require__(15)))
 
 /***/ }),
-/* 20 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const injection_handler_1 = __webpack_require__(16);
-const container_binding_config_1 = __webpack_require__(36);
-const container_namespaces_1 = __webpack_require__(39);
+const injection_handler_1 = __webpack_require__(22);
+const container_binding_config_1 = __webpack_require__(45);
+const container_namespaces_1 = __webpack_require__(48);
 /**
  * Internal implementation of IoC Container.
  */
@@ -3553,7 +4359,7 @@ IoCContainer.snapshotsCount = 0;
 //# sourceMappingURL=container.js.map
 
 /***/ }),
-/* 21 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3561,7 +4367,7 @@ IoCContainer.snapshotsCount = 0;
 // tslint:disable max-classes-per-file
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isWorkerRuntime = exports.getWorkerImplementation = exports.defaultPoolSize = void 0;
-const get_bundle_url_browser_1 = __webpack_require__(45);
+const get_bundle_url_browser_1 = __webpack_require__(54);
 exports.defaultPoolSize = typeof navigator !== "undefined" && navigator.hardwareConcurrency
     ? navigator.hardwareConcurrency
     : 4;
@@ -3628,12 +4434,12 @@ exports.isWorkerRuntime = isWorkerRuntime;
 
 
 /***/ }),
-/* 22 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var _observable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var _subject__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
+/* harmony import */ var _subject__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
 /* harmony import */ var _unsubscribe__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
 
 
@@ -3683,14 +4489,14 @@ function multicast(coldObservable) {
 
 
 /***/ }),
-/* 23 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Thread = void 0;
-const symbols_1 = __webpack_require__(14);
+const symbols_1 = __webpack_require__(17);
 function fail(message) {
     throw Error(message);
 }
@@ -3712,14 +4518,14 @@ exports.Thread = {
 
 
 /***/ }),
-/* 24 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.serialize = exports.deserialize = exports.registerSerializer = void 0;
-const serializers_1 = __webpack_require__(52);
+const serializers_1 = __webpack_require__(61);
 let registeredSerializer = serializers_1.DefaultSerializer;
 function registerSerializer(serializer) {
     registeredSerializer = serializers_1.extendSerializer(registeredSerializer, serializer);
@@ -3736,19 +4542,19 @@ exports.serialize = serialize;
 
 
 /***/ }),
-/* 25 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return spawn; });
-/* harmony import */ var debug__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var debug__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
 /* harmony import */ var debug__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(debug__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var observable_fns__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1);
-/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
-/* harmony import */ var _promise__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(29);
-/* harmony import */ var _symbols__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4);
-/* harmony import */ var _types_master__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(11);
-/* harmony import */ var _invocation_proxy__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(18);
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(7);
+/* harmony import */ var _promise__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(38);
+/* harmony import */ var _symbols__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
+/* harmony import */ var _types_master__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(14);
+/* harmony import */ var _invocation_proxy__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(27);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -3886,10 +4692,10 @@ function spawn(worker, options) {
     });
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12)))
 
 /***/ }),
-/* 26 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4164,7 +4970,7 @@ module.exports = function (list, options) {
 };
 
 /***/ }),
-/* 27 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4236,13 +5042,13 @@ module.exports = function (cssWithMappingToString) {
 };
 
 /***/ }),
-/* 28 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1637874184171"
+module.exports = __webpack_require__.p + "0.main.worker.js?1637891127808"
 
 /***/ }),
-/* 29 */
+/* 38 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4274,13 +5080,13 @@ function createPromiseWithResolver() {
 
 
 /***/ }),
-/* 30 */
+/* 39 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return isTransferDescriptor; });
 /* unused harmony export Transfer */
-/* harmony import */ var _symbols__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var _symbols__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 
 function isTransferable(thing) {
     if (!thing || typeof thing !== "object")
@@ -4306,7 +5112,7 @@ function Transfer(payload, transferables) {
 
 
 /***/ }),
-/* 31 */
+/* 40 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4316,10 +5122,10 @@ var _a;
 class CommonSharedConfig {}
 CommonSharedConfig.NETWORK_TICK_RATE = 15;
 CommonSharedConfig.SERVER_SOCKET_PORT = parseInt((_a = process.env.PORT) !== null && _a !== void 0 ? _a : '3001');
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12)))
 
 /***/ }),
-/* 32 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4459,19 +5265,19 @@ module.exports = deepmerge_1;
 
 
 /***/ }),
-/* 33 */,
-/* 34 */,
-/* 35 */,
-/* 36 */
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const injection_handler_1 = __webpack_require__(16);
-const model_1 = __webpack_require__(13);
-const get = __webpack_require__(37);
-const set = __webpack_require__(38);
+const injection_handler_1 = __webpack_require__(22);
+const model_1 = __webpack_require__(16);
+const get = __webpack_require__(46);
+const set = __webpack_require__(47);
 class IoCBindConfig {
     constructor(source, instanceFactory, valueFactory) {
         this.source = source;
@@ -4611,7 +5417,7 @@ exports.PropertyPath = PropertyPath;
 //# sourceMappingURL=container-binding-config.js.map
 
 /***/ }),
-/* 37 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -5546,10 +6352,10 @@ function get(object, path, defaultValue) {
 
 module.exports = get;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(15)))
 
 /***/ }),
-/* 38 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -6543,10 +7349,10 @@ function set(object, path, value) {
 
 module.exports = set;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(15)))
 
 /***/ }),
-/* 39 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6639,14 +7445,14 @@ class NamespaceBindings {
 //# sourceMappingURL=container-namespaces.js.map
 
 /***/ }),
-/* 40 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const injection_handler_1 = __webpack_require__(16);
-const model_1 = __webpack_require__(13);
+const injection_handler_1 = __webpack_require__(22);
+const model_1 = __webpack_require__(16);
 /**
  * Default [[Scope]] that always create a new instace for any dependency resolution request
  */
@@ -6697,15 +7503,15 @@ exports.RequestScope = RequestScope;
 //# sourceMappingURL=scopes.js.map
 
 /***/ }),
-/* 41 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(19);
-const container_1 = __webpack_require__(20);
-const model_1 = __webpack_require__(13);
+__webpack_require__(28);
+const container_1 = __webpack_require__(29);
+const model_1 = __webpack_require__(16);
 /**
  * A decorator to tell the container that this class should be handled by the Request [[Scope]].
  *
@@ -6937,20 +7743,20 @@ function InjectValueParamDecorator(target, propertyKey, _parameterIndex, value) 
 //# sourceMappingURL=decorators.js.map
 
 /***/ }),
-/* 42 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(43)
+__webpack_require__(52)
 
 
 /***/ }),
-/* 43 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 Object.defineProperty(exports, "__esModule", { value: true });
-const index_1 = __webpack_require__(44);
+const index_1 = __webpack_require__(53);
 if (typeof global !== "undefined") {
     global.Worker = index_1.Worker;
 }
@@ -6958,23 +7764,23 @@ else if (typeof window !== "undefined") {
     window.Worker = index_1.Worker;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(15)))
 
 /***/ }),
-/* 44 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Worker = exports.BlobWorker = exports.isWorkerRuntime = void 0;
-const implementation_1 = __webpack_require__(21);
+const implementation_1 = __webpack_require__(30);
 Object.defineProperty(exports, "isWorkerRuntime", { enumerable: true, get: function () { return implementation_1.isWorkerRuntime; } });
-var pool_1 = __webpack_require__(46);
+var pool_1 = __webpack_require__(55);
 Object.defineProperty(exports, "Pool", { enumerable: true, get: function () { return pool_1.Pool; } });
-var spawn_1 = __webpack_require__(51);
+var spawn_1 = __webpack_require__(60);
 Object.defineProperty(exports, "spawn", { enumerable: true, get: function () { return spawn_1.spawn; } });
-var thread_1 = __webpack_require__(23);
+var thread_1 = __webpack_require__(32);
 Object.defineProperty(exports, "Thread", { enumerable: true, get: function () { return thread_1.Thread; } });
 /** Separate class to spawn workers from source code blobs or strings. */
 exports.BlobWorker = implementation_1.getWorkerImplementation().blob;
@@ -6983,7 +7789,7 @@ exports.Worker = implementation_1.getWorkerImplementation().default;
 
 
 /***/ }),
-/* 45 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7019,7 +7825,7 @@ exports.getBaseURL = getBaseURL;
 
 
 /***/ }),
-/* 46 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7038,13 +7844,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Pool = exports.Thread = exports.PoolEventType = void 0;
-const debug_1 = __importDefault(__webpack_require__(3));
-const observable_fns_1 = __webpack_require__(8);
-const ponyfills_1 = __webpack_require__(49);
-const implementation_1 = __webpack_require__(21);
-const pool_types_1 = __webpack_require__(50);
+const debug_1 = __importDefault(__webpack_require__(4));
+const observable_fns_1 = __webpack_require__(10);
+const ponyfills_1 = __webpack_require__(58);
+const implementation_1 = __webpack_require__(30);
+const pool_types_1 = __webpack_require__(59);
 Object.defineProperty(exports, "PoolEventType", { enumerable: true, get: function () { return pool_types_1.PoolEventType; } });
-const thread_1 = __webpack_require__(23);
+const thread_1 = __webpack_require__(32);
 Object.defineProperty(exports, "Thread", { enumerable: true, get: function () { return thread_1.Thread; } });
 let nextPoolID = 1;
 function createArray(size) {
@@ -7316,7 +8122,7 @@ exports.Pool = PoolConstructor;
 
 
 /***/ }),
-/* 47 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -7332,7 +8138,7 @@ function setup(env) {
 	createDebug.disable = disable;
 	createDebug.enable = enable;
 	createDebug.enabled = enabled;
-	createDebug.humanize = __webpack_require__(48);
+	createDebug.humanize = __webpack_require__(57);
 	createDebug.destroy = destroy;
 
 	Object.keys(env).forEach(key => {
@@ -7596,7 +8402,7 @@ module.exports = setup;
 
 
 /***/ }),
-/* 48 */
+/* 57 */
 /***/ (function(module, exports) {
 
 /**
@@ -7764,7 +8570,7 @@ function plural(ms, msAbs, n, name) {
 
 
 /***/ }),
-/* 49 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7793,7 +8599,7 @@ exports.allSettled = allSettled;
 
 
 /***/ }),
-/* 50 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7815,7 +8621,7 @@ var PoolEventType;
 
 
 /***/ }),
-/* 51 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7834,13 +8640,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.spawn = void 0;
-const debug_1 = __importDefault(__webpack_require__(3));
-const observable_fns_1 = __webpack_require__(8);
-const common_1 = __webpack_require__(24);
-const promise_1 = __webpack_require__(53);
-const symbols_1 = __webpack_require__(14);
-const master_1 = __webpack_require__(54);
-const invocation_proxy_1 = __webpack_require__(55);
+const debug_1 = __importDefault(__webpack_require__(4));
+const observable_fns_1 = __webpack_require__(10);
+const common_1 = __webpack_require__(33);
+const promise_1 = __webpack_require__(62);
+const symbols_1 = __webpack_require__(17);
+const master_1 = __webpack_require__(63);
+const invocation_proxy_1 = __webpack_require__(64);
 const debugMessages = debug_1.default("threads:master:messages");
 const debugSpawn = debug_1.default("threads:master:spawn");
 const debugThreadUtils = debug_1.default("threads:master:thread-utils");
@@ -7963,10 +8769,10 @@ function spawn(worker, options) {
 }
 exports.spawn = spawn;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12)))
 
 /***/ }),
-/* 52 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8024,7 +8830,7 @@ exports.DefaultSerializer = {
 
 
 /***/ }),
-/* 53 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8059,7 +8865,7 @@ exports.createPromiseWithResolver = createPromiseWithResolver;
 
 
 /***/ }),
-/* 54 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8068,7 +8874,7 @@ exports.createPromiseWithResolver = createPromiseWithResolver;
 // tslint:disable max-classes-per-file
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WorkerEventType = void 0;
-const symbols_1 = __webpack_require__(14);
+const symbols_1 = __webpack_require__(17);
 /** Event as emitted by worker thread. Subscribe to using `Thread.events(thread)`. */
 var WorkerEventType;
 (function (WorkerEventType) {
@@ -8079,7 +8885,7 @@ var WorkerEventType;
 
 
 /***/ }),
-/* 55 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8095,12 +8901,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProxyModule = exports.createProxyFunction = void 0;
-const debug_1 = __importDefault(__webpack_require__(3));
-const observable_fns_1 = __webpack_require__(8);
-const common_1 = __webpack_require__(24);
-const observable_promise_1 = __webpack_require__(56);
-const transferable_1 = __webpack_require__(57);
-const messages_1 = __webpack_require__(58);
+const debug_1 = __importDefault(__webpack_require__(4));
+const observable_fns_1 = __webpack_require__(10);
+const common_1 = __webpack_require__(33);
+const observable_promise_1 = __webpack_require__(65);
+const transferable_1 = __webpack_require__(66);
+const messages_1 = __webpack_require__(67);
 const debugMessages = debug_1.default("threads:master:messages");
 let nextJobUID = 1;
 const dedupe = (array) => Array.from(new Set(array));
@@ -8215,14 +9021,14 @@ exports.createProxyModule = createProxyModule;
 
 
 /***/ }),
-/* 56 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObservablePromise = void 0;
-const observable_fns_1 = __webpack_require__(8);
+const observable_fns_1 = __webpack_require__(10);
 const doNothing = () => undefined;
 const returnInput = (input) => input;
 const runDeferred = (fn) => Promise.resolve().then(fn);
@@ -8368,14 +9174,14 @@ exports.ObservablePromise = ObservablePromise;
 
 
 /***/ }),
-/* 57 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Transfer = exports.isTransferDescriptor = void 0;
-const symbols_1 = __webpack_require__(14);
+const symbols_1 = __webpack_require__(17);
 function isTransferable(thing) {
     if (!thing || typeof thing !== "object")
         return false;
@@ -8402,7 +9208,7 @@ exports.Transfer = Transfer;
 
 
 /***/ }),
-/* 58 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8429,7 +9235,1894 @@ var WorkerMessageType;
 
 
 /***/ }),
-/* 59 */
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = {
+    'Heap'                      : __webpack_require__(18),
+    'Node'                      : __webpack_require__(23),
+    'Grid'                      : __webpack_require__(71),
+    'Util'                      : __webpack_require__(9),
+    'DiagonalMovement'          : __webpack_require__(3),
+    'Heuristic'                 : __webpack_require__(13),
+    'AStarFinder'               : __webpack_require__(24),
+    'BestFirstFinder'           : __webpack_require__(72),
+    'BreadthFirstFinder'        : __webpack_require__(73),
+    'DijkstraFinder'            : __webpack_require__(74),
+    'BiAStarFinder'             : __webpack_require__(25),
+    'BiBestFirstFinder'         : __webpack_require__(75),
+    'BiBreadthFirstFinder'      : __webpack_require__(76),
+    'BiDijkstraFinder'          : __webpack_require__(77),
+    'IDAStarFinder'             : __webpack_require__(78),
+    'JumpPointFinder'           : __webpack_require__(79),
+};
+
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {// Generated by CoffeeScript 1.8.0
+(function() {
+  var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
+
+  floor = Math.floor, min = Math.min;
+
+
+  /*
+  Default comparison function to be used
+   */
+
+  defaultCmp = function(x, y) {
+    if (x < y) {
+      return -1;
+    }
+    if (x > y) {
+      return 1;
+    }
+    return 0;
+  };
+
+
+  /*
+  Insert item x in list a, and keep it sorted assuming a is sorted.
+  
+  If x is already in a, insert it to the right of the rightmost x.
+  
+  Optional args lo (default 0) and hi (default a.length) bound the slice
+  of a to be searched.
+   */
+
+  insort = function(a, x, lo, hi, cmp) {
+    var mid;
+    if (lo == null) {
+      lo = 0;
+    }
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (lo < 0) {
+      throw new Error('lo must be non-negative');
+    }
+    if (hi == null) {
+      hi = a.length;
+    }
+    while (lo < hi) {
+      mid = floor((lo + hi) / 2);
+      if (cmp(x, a[mid]) < 0) {
+        hi = mid;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    return ([].splice.apply(a, [lo, lo - lo].concat(x)), x);
+  };
+
+
+  /*
+  Push item onto heap, maintaining the heap invariant.
+   */
+
+  heappush = function(array, item, cmp) {
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    array.push(item);
+    return _siftdown(array, 0, array.length - 1, cmp);
+  };
+
+
+  /*
+  Pop the smallest item off the heap, maintaining the heap invariant.
+   */
+
+  heappop = function(array, cmp) {
+    var lastelt, returnitem;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    lastelt = array.pop();
+    if (array.length) {
+      returnitem = array[0];
+      array[0] = lastelt;
+      _siftup(array, 0, cmp);
+    } else {
+      returnitem = lastelt;
+    }
+    return returnitem;
+  };
+
+
+  /*
+  Pop and return the current smallest value, and add the new item.
+  
+  This is more efficient than heappop() followed by heappush(), and can be
+  more appropriate when using a fixed size heap. Note that the value
+  returned may be larger than item! That constrains reasonable use of
+  this routine unless written as part of a conditional replacement:
+      if item > array[0]
+        item = heapreplace(array, item)
+   */
+
+  heapreplace = function(array, item, cmp) {
+    var returnitem;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    returnitem = array[0];
+    array[0] = item;
+    _siftup(array, 0, cmp);
+    return returnitem;
+  };
+
+
+  /*
+  Fast version of a heappush followed by a heappop.
+   */
+
+  heappushpop = function(array, item, cmp) {
+    var _ref;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (array.length && cmp(array[0], item) < 0) {
+      _ref = [array[0], item], item = _ref[0], array[0] = _ref[1];
+      _siftup(array, 0, cmp);
+    }
+    return item;
+  };
+
+
+  /*
+  Transform list into a heap, in-place, in O(array.length) time.
+   */
+
+  heapify = function(array, cmp) {
+    var i, _i, _j, _len, _ref, _ref1, _results, _results1;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    _ref1 = (function() {
+      _results1 = [];
+      for (var _j = 0, _ref = floor(array.length / 2); 0 <= _ref ? _j < _ref : _j > _ref; 0 <= _ref ? _j++ : _j--){ _results1.push(_j); }
+      return _results1;
+    }).apply(this).reverse();
+    _results = [];
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      i = _ref1[_i];
+      _results.push(_siftup(array, i, cmp));
+    }
+    return _results;
+  };
+
+
+  /*
+  Update the position of the given item in the heap.
+  This function should be called every time the item is being modified.
+   */
+
+  updateItem = function(array, item, cmp) {
+    var pos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    pos = array.indexOf(item);
+    if (pos === -1) {
+      return;
+    }
+    _siftdown(array, 0, pos, cmp);
+    return _siftup(array, pos, cmp);
+  };
+
+
+  /*
+  Find the n largest elements in a dataset.
+   */
+
+  nlargest = function(array, n, cmp) {
+    var elem, result, _i, _len, _ref;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    result = array.slice(0, n);
+    if (!result.length) {
+      return result;
+    }
+    heapify(result, cmp);
+    _ref = array.slice(n);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      elem = _ref[_i];
+      heappushpop(result, elem, cmp);
+    }
+    return result.sort(cmp).reverse();
+  };
+
+
+  /*
+  Find the n smallest elements in a dataset.
+   */
+
+  nsmallest = function(array, n, cmp) {
+    var elem, i, los, result, _i, _j, _len, _ref, _ref1, _results;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (n * 10 <= array.length) {
+      result = array.slice(0, n).sort(cmp);
+      if (!result.length) {
+        return result;
+      }
+      los = result[result.length - 1];
+      _ref = array.slice(n);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elem = _ref[_i];
+        if (cmp(elem, los) < 0) {
+          insort(result, elem, 0, null, cmp);
+          result.pop();
+          los = result[result.length - 1];
+        }
+      }
+      return result;
+    }
+    heapify(array, cmp);
+    _results = [];
+    for (i = _j = 0, _ref1 = min(n, array.length); 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+      _results.push(heappop(array, cmp));
+    }
+    return _results;
+  };
+
+  _siftdown = function(array, startpos, pos, cmp) {
+    var newitem, parent, parentpos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    newitem = array[pos];
+    while (pos > startpos) {
+      parentpos = (pos - 1) >> 1;
+      parent = array[parentpos];
+      if (cmp(newitem, parent) < 0) {
+        array[pos] = parent;
+        pos = parentpos;
+        continue;
+      }
+      break;
+    }
+    return array[pos] = newitem;
+  };
+
+  _siftup = function(array, pos, cmp) {
+    var childpos, endpos, newitem, rightpos, startpos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    endpos = array.length;
+    startpos = pos;
+    newitem = array[pos];
+    childpos = 2 * pos + 1;
+    while (childpos < endpos) {
+      rightpos = childpos + 1;
+      if (rightpos < endpos && !(cmp(array[childpos], array[rightpos]) < 0)) {
+        childpos = rightpos;
+      }
+      array[pos] = array[childpos];
+      pos = childpos;
+      childpos = 2 * pos + 1;
+    }
+    array[pos] = newitem;
+    return _siftdown(array, startpos, pos, cmp);
+  };
+
+  Heap = (function() {
+    Heap.push = heappush;
+
+    Heap.pop = heappop;
+
+    Heap.replace = heapreplace;
+
+    Heap.pushpop = heappushpop;
+
+    Heap.heapify = heapify;
+
+    Heap.updateItem = updateItem;
+
+    Heap.nlargest = nlargest;
+
+    Heap.nsmallest = nsmallest;
+
+    function Heap(cmp) {
+      this.cmp = cmp != null ? cmp : defaultCmp;
+      this.nodes = [];
+    }
+
+    Heap.prototype.push = function(x) {
+      return heappush(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.pop = function() {
+      return heappop(this.nodes, this.cmp);
+    };
+
+    Heap.prototype.peek = function() {
+      return this.nodes[0];
+    };
+
+    Heap.prototype.contains = function(x) {
+      return this.nodes.indexOf(x) !== -1;
+    };
+
+    Heap.prototype.replace = function(x) {
+      return heapreplace(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.pushpop = function(x) {
+      return heappushpop(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.heapify = function() {
+      return heapify(this.nodes, this.cmp);
+    };
+
+    Heap.prototype.updateItem = function(x) {
+      return updateItem(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.clear = function() {
+      return this.nodes = [];
+    };
+
+    Heap.prototype.empty = function() {
+      return this.nodes.length === 0;
+    };
+
+    Heap.prototype.size = function() {
+      return this.nodes.length;
+    };
+
+    Heap.prototype.clone = function() {
+      var heap;
+      heap = new Heap();
+      heap.nodes = this.nodes.slice(0);
+      return heap;
+    };
+
+    Heap.prototype.toArray = function() {
+      return this.nodes.slice(0);
+    };
+
+    Heap.prototype.insert = Heap.prototype.push;
+
+    Heap.prototype.top = Heap.prototype.peek;
+
+    Heap.prototype.front = Heap.prototype.peek;
+
+    Heap.prototype.has = Heap.prototype.contains;
+
+    Heap.prototype.copy = Heap.prototype.clone;
+
+    return Heap;
+
+  })();
+
+  if ( true && module !== null ? module.exports : void 0) {
+    module.exports = Heap;
+  } else {
+    window.Heap = Heap;
+  }
+
+}).call(this);
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(70)(module)))
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if (!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if (!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Node = __webpack_require__(23);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * The Grid class, which serves as the encapsulation of the layout of the nodes.
+ * @constructor
+ * @param {number|Array<Array<(number|boolean)>>} width_or_matrix Number of columns of the grid, or matrix
+ * @param {number} height Number of rows of the grid.
+ * @param {Array<Array<(number|boolean)>>} [matrix] - A 0-1 matrix
+ *     representing the walkable status of the nodes(0 or false for walkable).
+ *     If the matrix is not supplied, all the nodes will be walkable.  */
+function Grid(width_or_matrix, height, matrix) {
+    var width;
+
+    if (typeof width_or_matrix !== 'object') {
+        width = width_or_matrix;
+    } else {
+        height = width_or_matrix.length;
+        width = width_or_matrix[0].length;
+        matrix = width_or_matrix;
+    }
+
+    /**
+     * The number of columns of the grid.
+     * @type number
+     */
+    this.width = width;
+    /**
+     * The number of rows of the grid.
+     * @type number
+     */
+    this.height = height;
+
+    /**
+     * A 2D array of nodes.
+     */
+    this.nodes = this._buildNodes(width, height, matrix);
+}
+
+/**
+ * Build and return the nodes.
+ * @private
+ * @param {number} width
+ * @param {number} height
+ * @param {Array<Array<number|boolean>>} [matrix] - A 0-1 matrix representing
+ *     the walkable status of the nodes.
+ * @see Grid
+ */
+Grid.prototype._buildNodes = function(width, height, matrix) {
+    var i, j,
+        nodes = new Array(height);
+
+    for (i = 0; i < height; ++i) {
+        nodes[i] = new Array(width);
+        for (j = 0; j < width; ++j) {
+            nodes[i][j] = new Node(j, i);
+        }
+    }
+
+
+    if (matrix === undefined) {
+        return nodes;
+    }
+
+    if (matrix.length !== height || matrix[0].length !== width) {
+        throw new Error('Matrix size does not fit');
+    }
+
+    for (i = 0; i < height; ++i) {
+        for (j = 0; j < width; ++j) {
+            if (matrix[i][j]) {
+                // 0, false, null will be walkable
+                // while others will be un-walkable
+                nodes[i][j].walkable = false;
+            }
+        }
+    }
+
+    return nodes;
+};
+
+
+Grid.prototype.getNodeAt = function(x, y) {
+    return this.nodes[y][x];
+};
+
+
+/**
+ * Determine whether the node at the given position is walkable.
+ * (Also returns false if the position is outside the grid.)
+ * @param {number} x - The x coordinate of the node.
+ * @param {number} y - The y coordinate of the node.
+ * @return {boolean} - The walkability of the node.
+ */
+Grid.prototype.isWalkableAt = function(x, y) {
+    return this.isInside(x, y) && this.nodes[y][x].walkable;
+};
+
+
+/**
+ * Determine whether the position is inside the grid.
+ * XXX: `grid.isInside(x, y)` is wierd to read.
+ * It should be `(x, y) is inside grid`, but I failed to find a better
+ * name for this method.
+ * @param {number} x
+ * @param {number} y
+ * @return {boolean}
+ */
+Grid.prototype.isInside = function(x, y) {
+    return (x >= 0 && x < this.width) && (y >= 0 && y < this.height);
+};
+
+
+/**
+ * Set whether the node on the given position is walkable.
+ * NOTE: throws exception if the coordinate is not inside the grid.
+ * @param {number} x - The x coordinate of the node.
+ * @param {number} y - The y coordinate of the node.
+ * @param {boolean} walkable - Whether the position is walkable.
+ */
+Grid.prototype.setWalkableAt = function(x, y, walkable) {
+    this.nodes[y][x].walkable = walkable;
+};
+
+
+/**
+ * Get the neighbors of the given node.
+ *
+ *     offsets      diagonalOffsets:
+ *  +---+---+---+    +---+---+---+
+ *  |   | 0 |   |    | 0 |   | 1 |
+ *  +---+---+---+    +---+---+---+
+ *  | 3 |   | 1 |    |   |   |   |
+ *  +---+---+---+    +---+---+---+
+ *  |   | 2 |   |    | 3 |   | 2 |
+ *  +---+---+---+    +---+---+---+
+ *
+ *  When allowDiagonal is true, if offsets[i] is valid, then
+ *  diagonalOffsets[i] and
+ *  diagonalOffsets[(i + 1) % 4] is valid.
+ * @param {Node} node
+ * @param {DiagonalMovement} diagonalMovement
+ */
+Grid.prototype.getNeighbors = function(node, diagonalMovement) {
+    var x = node.x,
+        y = node.y,
+        neighbors = [],
+        s0 = false, d0 = false,
+        s1 = false, d1 = false,
+        s2 = false, d2 = false,
+        s3 = false, d3 = false,
+        nodes = this.nodes;
+
+    // ↑
+    if (this.isWalkableAt(x, y - 1)) {
+        neighbors.push(nodes[y - 1][x]);
+        s0 = true;
+    }
+    // →
+    if (this.isWalkableAt(x + 1, y)) {
+        neighbors.push(nodes[y][x + 1]);
+        s1 = true;
+    }
+    // ↓
+    if (this.isWalkableAt(x, y + 1)) {
+        neighbors.push(nodes[y + 1][x]);
+        s2 = true;
+    }
+    // ←
+    if (this.isWalkableAt(x - 1, y)) {
+        neighbors.push(nodes[y][x - 1]);
+        s3 = true;
+    }
+
+    if (diagonalMovement === DiagonalMovement.Never) {
+        return neighbors;
+    }
+
+    if (diagonalMovement === DiagonalMovement.OnlyWhenNoObstacles) {
+        d0 = s3 && s0;
+        d1 = s0 && s1;
+        d2 = s1 && s2;
+        d3 = s2 && s3;
+    } else if (diagonalMovement === DiagonalMovement.IfAtMostOneObstacle) {
+        d0 = s3 || s0;
+        d1 = s0 || s1;
+        d2 = s1 || s2;
+        d3 = s2 || s3;
+    } else if (diagonalMovement === DiagonalMovement.Always) {
+        d0 = true;
+        d1 = true;
+        d2 = true;
+        d3 = true;
+    } else {
+        throw new Error('Incorrect value of diagonalMovement');
+    }
+
+    // ↖
+    if (d0 && this.isWalkableAt(x - 1, y - 1)) {
+        neighbors.push(nodes[y - 1][x - 1]);
+    }
+    // ↗
+    if (d1 && this.isWalkableAt(x + 1, y - 1)) {
+        neighbors.push(nodes[y - 1][x + 1]);
+    }
+    // ↘
+    if (d2 && this.isWalkableAt(x + 1, y + 1)) {
+        neighbors.push(nodes[y + 1][x + 1]);
+    }
+    // ↙
+    if (d3 && this.isWalkableAt(x - 1, y + 1)) {
+        neighbors.push(nodes[y + 1][x - 1]);
+    }
+
+    return neighbors;
+};
+
+
+/**
+ * Get a clone of this grid.
+ * @return {Grid} Cloned grid.
+ */
+Grid.prototype.clone = function() {
+    var i, j,
+
+        width = this.width,
+        height = this.height,
+        thisNodes = this.nodes,
+
+        newGrid = new Grid(width, height),
+        newNodes = new Array(height);
+
+    for (i = 0; i < height; ++i) {
+        newNodes[i] = new Array(width);
+        for (j = 0; j < width; ++j) {
+            newNodes[i][j] = new Node(j, i, thisNodes[i][j].walkable);
+        }
+    }
+
+    newGrid.nodes = newNodes;
+
+    return newGrid;
+};
+
+module.exports = Grid;
+
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var AStarFinder = __webpack_require__(24);
+
+/**
+ * Best-First-Search path-finder.
+ * @constructor
+ * @extends AStarFinder
+ * @param {Object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ * @param {function} opt.heuristic Heuristic function to estimate the distance
+ *     (defaults to manhattan).
+ */
+function BestFirstFinder(opt) {
+    AStarFinder.call(this, opt);
+
+    var orig = this.heuristic;
+    this.heuristic = function(dx, dy) {
+        return orig(dx, dy) * 1000000;
+    };
+}
+
+BestFirstFinder.prototype = new AStarFinder();
+BestFirstFinder.prototype.constructor = BestFirstFinder;
+
+module.exports = BestFirstFinder;
+
+
+/***/ }),
+/* 73 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Util = __webpack_require__(9);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * Breadth-First-Search path finder.
+ * @constructor
+ * @param {Object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ */
+function BreadthFirstFinder(opt) {
+    opt = opt || {};
+    this.allowDiagonal = opt.allowDiagonal;
+    this.dontCrossCorners = opt.dontCrossCorners;
+    this.diagonalMovement = opt.diagonalMovement;
+
+    if (!this.diagonalMovement) {
+        if (!this.allowDiagonal) {
+            this.diagonalMovement = DiagonalMovement.Never;
+        } else {
+            if (this.dontCrossCorners) {
+                this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
+            } else {
+                this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
+            }
+        }
+    }
+}
+
+/**
+ * Find and return the the path.
+ * @return {Array<Array<number>>} The path, including both start and
+ *     end positions.
+ */
+BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    var openList = [],
+        diagonalMovement = this.diagonalMovement,
+        startNode = grid.getNodeAt(startX, startY),
+        endNode = grid.getNodeAt(endX, endY),
+        neighbors, neighbor, node, i, l;
+
+    // push the start pos into the queue
+    openList.push(startNode);
+    startNode.opened = true;
+
+    // while the queue is not empty
+    while (openList.length) {
+        // take the front node from the queue
+        node = openList.shift();
+        node.closed = true;
+
+        // reached the end position
+        if (node === endNode) {
+            return Util.backtrace(endNode);
+        }
+
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
+
+            // skip this neighbor if it has been inspected before
+            if (neighbor.closed || neighbor.opened) {
+                continue;
+            }
+
+            openList.push(neighbor);
+            neighbor.opened = true;
+            neighbor.parent = node;
+        }
+    }
+    
+    // fail to find the path
+    return [];
+};
+
+module.exports = BreadthFirstFinder;
+
+
+/***/ }),
+/* 74 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var AStarFinder = __webpack_require__(24);
+
+/**
+ * Dijkstra path-finder.
+ * @constructor
+ * @extends AStarFinder
+ * @param {Object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ */
+function DijkstraFinder(opt) {
+    AStarFinder.call(this, opt);
+    this.heuristic = function(dx, dy) {
+        return 0;
+    };
+}
+
+DijkstraFinder.prototype = new AStarFinder();
+DijkstraFinder.prototype.constructor = DijkstraFinder;
+
+module.exports = DijkstraFinder;
+
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var BiAStarFinder = __webpack_require__(25);
+
+/**
+ * Bi-direcitional Best-First-Search path-finder.
+ * @constructor
+ * @extends BiAStarFinder
+ * @param {Object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ * @param {function} opt.heuristic Heuristic function to estimate the distance
+ *     (defaults to manhattan).
+ */
+function BiBestFirstFinder(opt) {
+    BiAStarFinder.call(this, opt);
+
+    var orig = this.heuristic;
+    this.heuristic = function(dx, dy) {
+        return orig(dx, dy) * 1000000;
+    };
+}
+
+BiBestFirstFinder.prototype = new BiAStarFinder();
+BiBestFirstFinder.prototype.constructor = BiBestFirstFinder;
+
+module.exports = BiBestFirstFinder;
+
+
+/***/ }),
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Util = __webpack_require__(9);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * Bi-directional Breadth-First-Search path finder.
+ * @constructor
+ * @param {object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ */
+function BiBreadthFirstFinder(opt) {
+    opt = opt || {};
+    this.allowDiagonal = opt.allowDiagonal;
+    this.dontCrossCorners = opt.dontCrossCorners;
+    this.diagonalMovement = opt.diagonalMovement;
+
+    if (!this.diagonalMovement) {
+        if (!this.allowDiagonal) {
+            this.diagonalMovement = DiagonalMovement.Never;
+        } else {
+            if (this.dontCrossCorners) {
+                this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
+            } else {
+                this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
+            }
+        }
+    }
+}
+
+
+/**
+ * Find and return the the path.
+ * @return {Array<Array<number>>} The path, including both start and
+ *     end positions.
+ */
+BiBreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    var startNode = grid.getNodeAt(startX, startY),
+        endNode = grid.getNodeAt(endX, endY),
+        startOpenList = [], endOpenList = [],
+        neighbors, neighbor, node,
+        diagonalMovement = this.diagonalMovement,
+        BY_START = 0, BY_END = 1,
+        i, l;
+
+    // push the start and end nodes into the queues
+    startOpenList.push(startNode);
+    startNode.opened = true;
+    startNode.by = BY_START;
+
+    endOpenList.push(endNode);
+    endNode.opened = true;
+    endNode.by = BY_END;
+
+    // while both the queues are not empty
+    while (startOpenList.length && endOpenList.length) {
+
+        // expand start open list
+
+        node = startOpenList.shift();
+        node.closed = true;
+
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
+
+            if (neighbor.closed) {
+                continue;
+            }
+            if (neighbor.opened) {
+                // if this node has been inspected by the reversed search,
+                // then a path is found.
+                if (neighbor.by === BY_END) {
+                    return Util.biBacktrace(node, neighbor);
+                }
+                continue;
+            }
+            startOpenList.push(neighbor);
+            neighbor.parent = node;
+            neighbor.opened = true;
+            neighbor.by = BY_START;
+        }
+
+        // expand end open list
+
+        node = endOpenList.shift();
+        node.closed = true;
+
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
+
+            if (neighbor.closed) {
+                continue;
+            }
+            if (neighbor.opened) {
+                if (neighbor.by === BY_START) {
+                    return Util.biBacktrace(neighbor, node);
+                }
+                continue;
+            }
+            endOpenList.push(neighbor);
+            neighbor.parent = node;
+            neighbor.opened = true;
+            neighbor.by = BY_END;
+        }
+    }
+
+    // fail to find the path
+    return [];
+};
+
+module.exports = BiBreadthFirstFinder;
+
+
+/***/ }),
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var BiAStarFinder = __webpack_require__(25);
+
+/**
+ * Bi-directional Dijkstra path-finder.
+ * @constructor
+ * @extends BiAStarFinder
+ * @param {Object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ */
+function BiDijkstraFinder(opt) {
+    BiAStarFinder.call(this, opt);
+    this.heuristic = function(dx, dy) {
+        return 0;
+    };
+}
+
+BiDijkstraFinder.prototype = new BiAStarFinder();
+BiDijkstraFinder.prototype.constructor = BiDijkstraFinder;
+
+module.exports = BiDijkstraFinder;
+
+
+/***/ }),
+/* 78 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Util       = __webpack_require__(9);
+var Heuristic  = __webpack_require__(13);
+var Node       = __webpack_require__(23);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * Iterative Deeping A Star (IDA*) path-finder.
+ *
+ * Recursion based on:
+ *   http://www.apl.jhu.edu/~hall/AI-Programming/IDA-Star.html
+ *
+ * Path retracing based on:
+ *  V. Nageshwara Rao, Vipin Kumar and K. Ramesh
+ *  "A Parallel Implementation of Iterative-Deeping-A*", January 1987.
+ *  ftp://ftp.cs.utexas.edu/.snapshot/hourly.1/pub/AI-Lab/tech-reports/UT-AI-TR-87-46.pdf
+ *
+ * @author Gerard Meier (www.gerardmeier.com)
+ *
+ * @constructor
+ * @param {Object} opt
+ * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
+ *     Deprecated, use diagonalMovement instead.
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ *     block corners. Deprecated, use diagonalMovement instead.
+ * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ * @param {function} opt.heuristic Heuristic function to estimate the distance
+ *     (defaults to manhattan).
+ * @param {number} opt.weight Weight to apply to the heuristic to allow for
+ *     suboptimal paths, in order to speed up the search.
+ * @param {boolean} opt.trackRecursion Whether to track recursion for
+ *     statistical purposes.
+ * @param {number} opt.timeLimit Maximum execution time. Use <= 0 for infinite.
+ */
+function IDAStarFinder(opt) {
+    opt = opt || {};
+    this.allowDiagonal = opt.allowDiagonal;
+    this.dontCrossCorners = opt.dontCrossCorners;
+    this.diagonalMovement = opt.diagonalMovement;
+    this.heuristic = opt.heuristic || Heuristic.manhattan;
+    this.weight = opt.weight || 1;
+    this.trackRecursion = opt.trackRecursion || false;
+    this.timeLimit = opt.timeLimit || Infinity; // Default: no time limit.
+
+    if (!this.diagonalMovement) {
+        if (!this.allowDiagonal) {
+            this.diagonalMovement = DiagonalMovement.Never;
+        } else {
+            if (this.dontCrossCorners) {
+                this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
+            } else {
+                this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
+            }
+        }
+    }
+
+    // When diagonal movement is allowed the manhattan heuristic is not
+    // admissible, it should be octile instead
+    if (this.diagonalMovement === DiagonalMovement.Never) {
+        this.heuristic = opt.heuristic || Heuristic.manhattan;
+    } else {
+        this.heuristic = opt.heuristic || Heuristic.octile;
+    }
+}
+
+/**
+ * Find and return the the path. When an empty array is returned, either
+ * no path is possible, or the maximum execution time is reached.
+ *
+ * @return {Array<Array<number>>} The path, including both start and
+ *     end positions.
+ */
+IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    // Used for statistics:
+    var nodesVisited = 0;
+
+    // Execution time limitation:
+    var startTime = new Date().getTime();
+
+    // Heuristic helper:
+    var h = function(a, b) {
+        return this.heuristic(Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+    }.bind(this);
+
+    // Step cost from a to b:
+    var cost = function(a, b) {
+        return (a.x === b.x || a.y === b.y) ? 1 : Math.SQRT2;
+    };
+
+    /**
+     * IDA* search implementation.
+     *
+     * @param {Node} The node currently expanding from.
+     * @param {number} Cost to reach the given node.
+     * @param {number} Maximum search depth (cut-off value).
+     * @param {Array<Array<number>>} The found route.
+     * @param {number} Recursion depth.
+     *
+     * @return {Object} either a number with the new optimal cut-off depth,
+     * or a valid node instance, in which case a path was found.
+     */
+    var search = function(node, g, cutoff, route, depth) {
+        nodesVisited++;
+
+        // Enforce timelimit:
+        if (this.timeLimit > 0 &&
+            new Date().getTime() - startTime > this.timeLimit * 1000) {
+            // Enforced as "path-not-found".
+            return Infinity;
+        }
+
+        var f = g + h(node, end) * this.weight;
+
+        // We've searched too deep for this iteration.
+        if (f > cutoff) {
+            return f;
+        }
+
+        if (node == end) {
+            route[depth] = [node.x, node.y];
+            return node;
+        }
+
+        var min, t, k, neighbour;
+
+        var neighbours = grid.getNeighbors(node, this.diagonalMovement);
+
+        // Sort the neighbours, gives nicer paths. But, this deviates
+        // from the original algorithm - so I left it out.
+        //neighbours.sort(function(a, b){
+        //    return h(a, end) - h(b, end);
+        //});
+
+        
+        /*jshint -W084 *///Disable warning: Expected a conditional expression and instead saw an assignment
+        for (k = 0, min = Infinity; neighbour = neighbours[k]; ++k) {
+        /*jshint +W084 *///Enable warning: Expected a conditional expression and instead saw an assignment
+            if (this.trackRecursion) {
+                // Retain a copy for visualisation. Due to recursion, this
+                // node may be part of other paths too.
+                neighbour.retainCount = neighbour.retainCount + 1 || 1;
+
+                if(neighbour.tested !== true) {
+                    neighbour.tested = true;
+                }
+            }
+
+            t = search(neighbour, g + cost(node, neighbour), cutoff, route, depth + 1);
+
+            if (t instanceof Node) {
+                route[depth] = [node.x, node.y];
+
+                // For a typical A* linked list, this would work:
+                // neighbour.parent = node;
+                return t;
+            }
+
+            // Decrement count, then determine whether it's actually closed.
+            if (this.trackRecursion && (--neighbour.retainCount) === 0) {
+                neighbour.tested = false;
+            }
+
+            if (t < min) {
+                min = t;
+            }
+        }
+
+        return min;
+
+    }.bind(this);
+
+    // Node instance lookups:
+    var start = grid.getNodeAt(startX, startY);
+    var end   = grid.getNodeAt(endX, endY);
+
+    // Initial search depth, given the typical heuristic contraints,
+    // there should be no cheaper route possible.
+    var cutOff = h(start, end);
+
+    var j, route, t;
+
+    // With an overflow protection.
+    for (j = 0; true; ++j) {
+
+        route = [];
+
+        // Search till cut-off depth:
+        t = search(start, 0, cutOff, route, 0);
+
+        // Route not possible, or not found in time limit.
+        if (t === Infinity) {
+            return [];
+        }
+
+        // If t is a node, it's also the end node. Route is now
+        // populated with a valid path to the end node.
+        if (t instanceof Node) {
+            return route;
+        }
+
+        // Try again, this time with a deeper cut-off. The t score
+        // is the closest we got to the end node.
+        cutOff = t;
+    }
+
+    // This _should_ never to be reached.
+    return [];
+};
+
+module.exports = IDAStarFinder;
+
+
+/***/ }),
+/* 79 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * @author aniero / https://github.com/aniero
+ */
+var DiagonalMovement = __webpack_require__(3);
+var JPFNeverMoveDiagonally = __webpack_require__(80);
+var JPFAlwaysMoveDiagonally = __webpack_require__(81);
+var JPFMoveDiagonallyIfNoObstacles = __webpack_require__(82);
+var JPFMoveDiagonallyIfAtMostOneObstacle = __webpack_require__(83);
+
+/**
+ * Path finder using the Jump Point Search algorithm
+ * @param {Object} opt
+ * @param {function} opt.heuristic Heuristic function to estimate the distance
+ *     (defaults to manhattan).
+ * @param {DiagonalMovement} opt.diagonalMovement Condition under which diagonal
+ *      movement will be allowed.
+ */
+function JumpPointFinder(opt) {
+    opt = opt || {};
+    if (opt.diagonalMovement === DiagonalMovement.Never) {
+        return new JPFNeverMoveDiagonally(opt);
+    } else if (opt.diagonalMovement === DiagonalMovement.Always) {
+        return new JPFAlwaysMoveDiagonally(opt);
+    } else if (opt.diagonalMovement === DiagonalMovement.OnlyWhenNoObstacles) {
+        return new JPFMoveDiagonallyIfNoObstacles(opt);
+    } else {
+        return new JPFMoveDiagonallyIfAtMostOneObstacle(opt);
+    }
+}
+
+module.exports = JumpPointFinder;
+
+
+/***/ }),
+/* 80 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * @author imor / https://github.com/imor
+ */
+var JumpPointFinderBase = __webpack_require__(19);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * Path finder using the Jump Point Search algorithm allowing only horizontal
+ * or vertical movements.
+ */
+function JPFNeverMoveDiagonally(opt) {
+    JumpPointFinderBase.call(this, opt);
+}
+
+JPFNeverMoveDiagonally.prototype = new JumpPointFinderBase();
+JPFNeverMoveDiagonally.prototype.constructor = JPFNeverMoveDiagonally;
+
+/**
+ * Search recursively in the direction (parent -> child), stopping only when a
+ * jump point is found.
+ * @protected
+ * @return {Array<Array<number>>} The x, y coordinate of the jump point
+ *     found, or null if not found
+ */
+JPFNeverMoveDiagonally.prototype._jump = function(x, y, px, py) {
+    var grid = this.grid,
+        dx = x - px, dy = y - py;
+
+    if (!grid.isWalkableAt(x, y)) {
+        return null;
+    }
+
+    if(this.trackJumpRecursion === true) {
+        grid.getNodeAt(x, y).tested = true;
+    }
+
+    if (grid.getNodeAt(x, y) === this.endNode) {
+        return [x, y];
+    }
+
+    if (dx !== 0) {
+        if ((grid.isWalkableAt(x, y - 1) && !grid.isWalkableAt(x - dx, y - 1)) ||
+            (grid.isWalkableAt(x, y + 1) && !grid.isWalkableAt(x - dx, y + 1))) {
+            return [x, y];
+        }
+    }
+    else if (dy !== 0) {
+        if ((grid.isWalkableAt(x - 1, y) && !grid.isWalkableAt(x - 1, y - dy)) ||
+            (grid.isWalkableAt(x + 1, y) && !grid.isWalkableAt(x + 1, y - dy))) {
+            return [x, y];
+        }
+        //When moving vertically, must check for horizontal jump points
+        if (this._jump(x + 1, y, x, y) || this._jump(x - 1, y, x, y)) {
+            return [x, y];
+        }
+    }
+    else {
+        throw new Error("Only horizontal and vertical movements are allowed");
+    }
+
+    return this._jump(x + dx, y + dy, x, y);
+};
+
+/**
+ * Find the neighbors for the given node. If the node has a parent,
+ * prune the neighbors based on the jump point search algorithm, otherwise
+ * return all available neighbors.
+ * @return {Array<Array<number>>} The neighbors found.
+ */
+JPFNeverMoveDiagonally.prototype._findNeighbors = function(node) {
+    var parent = node.parent,
+        x = node.x, y = node.y,
+        grid = this.grid,
+        px, py, nx, ny, dx, dy,
+        neighbors = [], neighborNodes, neighborNode, i, l;
+
+    // directed pruning: can ignore most neighbors, unless forced.
+    if (parent) {
+        px = parent.x;
+        py = parent.y;
+        // get the normalized direction of travel
+        dx = (x - px) / Math.max(Math.abs(x - px), 1);
+        dy = (y - py) / Math.max(Math.abs(y - py), 1);
+
+        if (dx !== 0) {
+            if (grid.isWalkableAt(x, y - 1)) {
+                neighbors.push([x, y - 1]);
+            }
+            if (grid.isWalkableAt(x, y + 1)) {
+                neighbors.push([x, y + 1]);
+            }
+            if (grid.isWalkableAt(x + dx, y)) {
+                neighbors.push([x + dx, y]);
+            }
+        }
+        else if (dy !== 0) {
+            if (grid.isWalkableAt(x - 1, y)) {
+                neighbors.push([x - 1, y]);
+            }
+            if (grid.isWalkableAt(x + 1, y)) {
+                neighbors.push([x + 1, y]);
+            }
+            if (grid.isWalkableAt(x, y + dy)) {
+                neighbors.push([x, y + dy]);
+            }
+        }
+    }
+    // return all neighbors
+    else {
+        neighborNodes = grid.getNeighbors(node, DiagonalMovement.Never);
+        for (i = 0, l = neighborNodes.length; i < l; ++i) {
+            neighborNode = neighborNodes[i];
+            neighbors.push([neighborNode.x, neighborNode.y]);
+        }
+    }
+
+    return neighbors;
+};
+
+module.exports = JPFNeverMoveDiagonally;
+
+
+/***/ }),
+/* 81 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * @author imor / https://github.com/imor
+ */
+var JumpPointFinderBase = __webpack_require__(19);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * Path finder using the Jump Point Search algorithm which always moves
+ * diagonally irrespective of the number of obstacles.
+ */
+function JPFAlwaysMoveDiagonally(opt) {
+    JumpPointFinderBase.call(this, opt);
+}
+
+JPFAlwaysMoveDiagonally.prototype = new JumpPointFinderBase();
+JPFAlwaysMoveDiagonally.prototype.constructor = JPFAlwaysMoveDiagonally;
+
+/**
+ * Search recursively in the direction (parent -> child), stopping only when a
+ * jump point is found.
+ * @protected
+ * @return {Array<Array<number>>} The x, y coordinate of the jump point
+ *     found, or null if not found
+ */
+JPFAlwaysMoveDiagonally.prototype._jump = function(x, y, px, py) {
+    var grid = this.grid,
+        dx = x - px, dy = y - py;
+
+    if (!grid.isWalkableAt(x, y)) {
+        return null;
+    }
+
+    if(this.trackJumpRecursion === true) {
+        grid.getNodeAt(x, y).tested = true;
+    }
+
+    if (grid.getNodeAt(x, y) === this.endNode) {
+        return [x, y];
+    }
+
+    // check for forced neighbors
+    // along the diagonal
+    if (dx !== 0 && dy !== 0) {
+        if ((grid.isWalkableAt(x - dx, y + dy) && !grid.isWalkableAt(x - dx, y)) ||
+            (grid.isWalkableAt(x + dx, y - dy) && !grid.isWalkableAt(x, y - dy))) {
+            return [x, y];
+        }
+        // when moving diagonally, must check for vertical/horizontal jump points
+        if (this._jump(x + dx, y, x, y) || this._jump(x, y + dy, x, y)) {
+            return [x, y];
+        }
+    }
+    // horizontally/vertically
+    else {
+        if( dx !== 0 ) { // moving along x
+            if((grid.isWalkableAt(x + dx, y + 1) && !grid.isWalkableAt(x, y + 1)) ||
+               (grid.isWalkableAt(x + dx, y - 1) && !grid.isWalkableAt(x, y - 1))) {
+                return [x, y];
+            }
+        }
+        else {
+            if((grid.isWalkableAt(x + 1, y + dy) && !grid.isWalkableAt(x + 1, y)) ||
+               (grid.isWalkableAt(x - 1, y + dy) && !grid.isWalkableAt(x - 1, y))) {
+                return [x, y];
+            }
+        }
+    }
+
+    return this._jump(x + dx, y + dy, x, y);
+};
+
+/**
+ * Find the neighbors for the given node. If the node has a parent,
+ * prune the neighbors based on the jump point search algorithm, otherwise
+ * return all available neighbors.
+ * @return {Array<Array<number>>} The neighbors found.
+ */
+JPFAlwaysMoveDiagonally.prototype._findNeighbors = function(node) {
+    var parent = node.parent,
+        x = node.x, y = node.y,
+        grid = this.grid,
+        px, py, nx, ny, dx, dy,
+        neighbors = [], neighborNodes, neighborNode, i, l;
+
+    // directed pruning: can ignore most neighbors, unless forced.
+    if (parent) {
+        px = parent.x;
+        py = parent.y;
+        // get the normalized direction of travel
+        dx = (x - px) / Math.max(Math.abs(x - px), 1);
+        dy = (y - py) / Math.max(Math.abs(y - py), 1);
+
+        // search diagonally
+        if (dx !== 0 && dy !== 0) {
+            if (grid.isWalkableAt(x, y + dy)) {
+                neighbors.push([x, y + dy]);
+            }
+            if (grid.isWalkableAt(x + dx, y)) {
+                neighbors.push([x + dx, y]);
+            }
+            if (grid.isWalkableAt(x + dx, y + dy)) {
+                neighbors.push([x + dx, y + dy]);
+            }
+            if (!grid.isWalkableAt(x - dx, y)) {
+                neighbors.push([x - dx, y + dy]);
+            }
+            if (!grid.isWalkableAt(x, y - dy)) {
+                neighbors.push([x + dx, y - dy]);
+            }
+        }
+        // search horizontally/vertically
+        else {
+            if(dx === 0) {
+                if (grid.isWalkableAt(x, y + dy)) {
+                    neighbors.push([x, y + dy]);
+                }
+                if (!grid.isWalkableAt(x + 1, y)) {
+                    neighbors.push([x + 1, y + dy]);
+                }
+                if (!grid.isWalkableAt(x - 1, y)) {
+                    neighbors.push([x - 1, y + dy]);
+                }
+            }
+            else {
+                if (grid.isWalkableAt(x + dx, y)) {
+                    neighbors.push([x + dx, y]);
+                }
+                if (!grid.isWalkableAt(x, y + 1)) {
+                    neighbors.push([x + dx, y + 1]);
+                }
+                if (!grid.isWalkableAt(x, y - 1)) {
+                    neighbors.push([x + dx, y - 1]);
+                }
+            }
+        }
+    }
+    // return all neighbors
+    else {
+        neighborNodes = grid.getNeighbors(node, DiagonalMovement.Always);
+        for (i = 0, l = neighborNodes.length; i < l; ++i) {
+            neighborNode = neighborNodes[i];
+            neighbors.push([neighborNode.x, neighborNode.y]);
+        }
+    }
+
+    return neighbors;
+};
+
+module.exports = JPFAlwaysMoveDiagonally;
+
+
+/***/ }),
+/* 82 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * @author imor / https://github.com/imor
+ */
+var JumpPointFinderBase = __webpack_require__(19);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * Path finder using the Jump Point Search algorithm which moves
+ * diagonally only when there are no obstacles.
+ */
+function JPFMoveDiagonallyIfNoObstacles(opt) {
+    JumpPointFinderBase.call(this, opt);
+}
+
+JPFMoveDiagonallyIfNoObstacles.prototype = new JumpPointFinderBase();
+JPFMoveDiagonallyIfNoObstacles.prototype.constructor = JPFMoveDiagonallyIfNoObstacles;
+
+/**
+ * Search recursively in the direction (parent -> child), stopping only when a
+ * jump point is found.
+ * @protected
+ * @return {Array<Array<number>>} The x, y coordinate of the jump point
+ *     found, or null if not found
+ */
+JPFMoveDiagonallyIfNoObstacles.prototype._jump = function(x, y, px, py) {
+    var grid = this.grid,
+        dx = x - px, dy = y - py;
+
+    if (!grid.isWalkableAt(x, y)) {
+        return null;
+    }
+
+    if(this.trackJumpRecursion === true) {
+        grid.getNodeAt(x, y).tested = true;
+    }
+
+    if (grid.getNodeAt(x, y) === this.endNode) {
+        return [x, y];
+    }
+
+    // check for forced neighbors
+    // along the diagonal
+    if (dx !== 0 && dy !== 0) {
+        // if ((grid.isWalkableAt(x - dx, y + dy) && !grid.isWalkableAt(x - dx, y)) ||
+            // (grid.isWalkableAt(x + dx, y - dy) && !grid.isWalkableAt(x, y - dy))) {
+            // return [x, y];
+        // }
+        // when moving diagonally, must check for vertical/horizontal jump points
+        if (this._jump(x + dx, y, x, y) || this._jump(x, y + dy, x, y)) {
+            return [x, y];
+        }
+    }
+    // horizontally/vertically
+    else {
+        if (dx !== 0) {
+            if ((grid.isWalkableAt(x, y - 1) && !grid.isWalkableAt(x - dx, y - 1)) ||
+                (grid.isWalkableAt(x, y + 1) && !grid.isWalkableAt(x - dx, y + 1))) {
+                return [x, y];
+            }
+        }
+        else if (dy !== 0) {
+            if ((grid.isWalkableAt(x - 1, y) && !grid.isWalkableAt(x - 1, y - dy)) ||
+                (grid.isWalkableAt(x + 1, y) && !grid.isWalkableAt(x + 1, y - dy))) {
+                return [x, y];
+            }
+            // When moving vertically, must check for horizontal jump points
+            // if (this._jump(x + 1, y, x, y) || this._jump(x - 1, y, x, y)) {
+                // return [x, y];
+            // }
+        }
+    }
+
+    // moving diagonally, must make sure one of the vertical/horizontal
+    // neighbors is open to allow the path
+    if (grid.isWalkableAt(x + dx, y) && grid.isWalkableAt(x, y + dy)) {
+        return this._jump(x + dx, y + dy, x, y);
+    } else {
+        return null;
+    }
+};
+
+/**
+ * Find the neighbors for the given node. If the node has a parent,
+ * prune the neighbors based on the jump point search algorithm, otherwise
+ * return all available neighbors.
+ * @return {Array<Array<number>>} The neighbors found.
+ */
+JPFMoveDiagonallyIfNoObstacles.prototype._findNeighbors = function(node) {
+    var parent = node.parent,
+        x = node.x, y = node.y,
+        grid = this.grid,
+        px, py, nx, ny, dx, dy,
+        neighbors = [], neighborNodes, neighborNode, i, l;
+
+    // directed pruning: can ignore most neighbors, unless forced.
+    if (parent) {
+        px = parent.x;
+        py = parent.y;
+        // get the normalized direction of travel
+        dx = (x - px) / Math.max(Math.abs(x - px), 1);
+        dy = (y - py) / Math.max(Math.abs(y - py), 1);
+
+        // search diagonally
+        if (dx !== 0 && dy !== 0) {
+            if (grid.isWalkableAt(x, y + dy)) {
+                neighbors.push([x, y + dy]);
+            }
+            if (grid.isWalkableAt(x + dx, y)) {
+                neighbors.push([x + dx, y]);
+            }
+            if (grid.isWalkableAt(x, y + dy) && grid.isWalkableAt(x + dx, y)) {
+                neighbors.push([x + dx, y + dy]);
+            }
+        }
+        // search horizontally/vertically
+        else {
+            var isNextWalkable;
+            if (dx !== 0) {
+                isNextWalkable = grid.isWalkableAt(x + dx, y);
+                var isTopWalkable = grid.isWalkableAt(x, y + 1);
+                var isBottomWalkable = grid.isWalkableAt(x, y - 1);
+
+                if (isNextWalkable) {
+                    neighbors.push([x + dx, y]);
+                    if (isTopWalkable) {
+                        neighbors.push([x + dx, y + 1]);
+                    }
+                    if (isBottomWalkable) {
+                        neighbors.push([x + dx, y - 1]);
+                    }
+                }
+                if (isTopWalkable) {
+                    neighbors.push([x, y + 1]);
+                }
+                if (isBottomWalkable) {
+                    neighbors.push([x, y - 1]);
+                }
+            }
+            else if (dy !== 0) {
+                isNextWalkable = grid.isWalkableAt(x, y + dy);
+                var isRightWalkable = grid.isWalkableAt(x + 1, y);
+                var isLeftWalkable = grid.isWalkableAt(x - 1, y);
+
+                if (isNextWalkable) {
+                    neighbors.push([x, y + dy]);
+                    if (isRightWalkable) {
+                        neighbors.push([x + 1, y + dy]);
+                    }
+                    if (isLeftWalkable) {
+                        neighbors.push([x - 1, y + dy]);
+                    }
+                }
+                if (isRightWalkable) {
+                    neighbors.push([x + 1, y]);
+                }
+                if (isLeftWalkable) {
+                    neighbors.push([x - 1, y]);
+                }
+            }
+        }
+    }
+    // return all neighbors
+    else {
+        neighborNodes = grid.getNeighbors(node, DiagonalMovement.OnlyWhenNoObstacles);
+        for (i = 0, l = neighborNodes.length; i < l; ++i) {
+            neighborNode = neighborNodes[i];
+            neighbors.push([neighborNode.x, neighborNode.y]);
+        }
+    }
+
+    return neighbors;
+};
+
+module.exports = JPFMoveDiagonallyIfNoObstacles;
+
+
+/***/ }),
+/* 83 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * @author imor / https://github.com/imor
+ */
+var JumpPointFinderBase = __webpack_require__(19);
+var DiagonalMovement = __webpack_require__(3);
+
+/**
+ * Path finder using the Jump Point Search algorithm which moves
+ * diagonally only when there is at most one obstacle.
+ */
+function JPFMoveDiagonallyIfAtMostOneObstacle(opt) {
+    JumpPointFinderBase.call(this, opt);
+}
+
+JPFMoveDiagonallyIfAtMostOneObstacle.prototype = new JumpPointFinderBase();
+JPFMoveDiagonallyIfAtMostOneObstacle.prototype.constructor = JPFMoveDiagonallyIfAtMostOneObstacle;
+
+/**
+ * Search recursively in the direction (parent -> child), stopping only when a
+ * jump point is found.
+ * @protected
+ * @return {Array<Array<number>>} The x, y coordinate of the jump point
+ *     found, or null if not found
+ */
+JPFMoveDiagonallyIfAtMostOneObstacle.prototype._jump = function(x, y, px, py) {
+    var grid = this.grid,
+        dx = x - px, dy = y - py;
+
+    if (!grid.isWalkableAt(x, y)) {
+        return null;
+    }
+
+    if(this.trackJumpRecursion === true) {
+        grid.getNodeAt(x, y).tested = true;
+    }
+
+    if (grid.getNodeAt(x, y) === this.endNode) {
+        return [x, y];
+    }
+
+    // check for forced neighbors
+    // along the diagonal
+    if (dx !== 0 && dy !== 0) {
+        if ((grid.isWalkableAt(x - dx, y + dy) && !grid.isWalkableAt(x - dx, y)) ||
+            (grid.isWalkableAt(x + dx, y - dy) && !grid.isWalkableAt(x, y - dy))) {
+            return [x, y];
+        }
+        // when moving diagonally, must check for vertical/horizontal jump points
+        if (this._jump(x + dx, y, x, y) || this._jump(x, y + dy, x, y)) {
+            return [x, y];
+        }
+    }
+    // horizontally/vertically
+    else {
+        if( dx !== 0 ) { // moving along x
+            if((grid.isWalkableAt(x + dx, y + 1) && !grid.isWalkableAt(x, y + 1)) ||
+               (grid.isWalkableAt(x + dx, y - 1) && !grid.isWalkableAt(x, y - 1))) {
+                return [x, y];
+            }
+        }
+        else {
+            if((grid.isWalkableAt(x + 1, y + dy) && !grid.isWalkableAt(x + 1, y)) ||
+               (grid.isWalkableAt(x - 1, y + dy) && !grid.isWalkableAt(x - 1, y))) {
+                return [x, y];
+            }
+        }
+    }
+
+    // moving diagonally, must make sure one of the vertical/horizontal
+    // neighbors is open to allow the path
+    if (grid.isWalkableAt(x + dx, y) || grid.isWalkableAt(x, y + dy)) {
+        return this._jump(x + dx, y + dy, x, y);
+    } else {
+        return null;
+    }
+};
+
+/**
+ * Find the neighbors for the given node. If the node has a parent,
+ * prune the neighbors based on the jump point search algorithm, otherwise
+ * return all available neighbors.
+ * @return {Array<Array<number>>} The neighbors found.
+ */
+JPFMoveDiagonallyIfAtMostOneObstacle.prototype._findNeighbors = function(node) {
+    var parent = node.parent,
+        x = node.x, y = node.y,
+        grid = this.grid,
+        px, py, nx, ny, dx, dy,
+        neighbors = [], neighborNodes, neighborNode, i, l;
+
+    // directed pruning: can ignore most neighbors, unless forced.
+    if (parent) {
+        px = parent.x;
+        py = parent.y;
+        // get the normalized direction of travel
+        dx = (x - px) / Math.max(Math.abs(x - px), 1);
+        dy = (y - py) / Math.max(Math.abs(y - py), 1);
+
+        // search diagonally
+        if (dx !== 0 && dy !== 0) {
+            if (grid.isWalkableAt(x, y + dy)) {
+                neighbors.push([x, y + dy]);
+            }
+            if (grid.isWalkableAt(x + dx, y)) {
+                neighbors.push([x + dx, y]);
+            }
+            if (grid.isWalkableAt(x, y + dy) || grid.isWalkableAt(x + dx, y)) {
+                neighbors.push([x + dx, y + dy]);
+            }
+            if (!grid.isWalkableAt(x - dx, y) && grid.isWalkableAt(x, y + dy)) {
+                neighbors.push([x - dx, y + dy]);
+            }
+            if (!grid.isWalkableAt(x, y - dy) && grid.isWalkableAt(x + dx, y)) {
+                neighbors.push([x + dx, y - dy]);
+            }
+        }
+        // search horizontally/vertically
+        else {
+            if(dx === 0) {
+                if (grid.isWalkableAt(x, y + dy)) {
+                    neighbors.push([x, y + dy]);
+                    if (!grid.isWalkableAt(x + 1, y)) {
+                        neighbors.push([x + 1, y + dy]);
+                    }
+                    if (!grid.isWalkableAt(x - 1, y)) {
+                        neighbors.push([x - 1, y + dy]);
+                    }
+                }
+            }
+            else {
+                if (grid.isWalkableAt(x + dx, y)) {
+                    neighbors.push([x + dx, y]);
+                    if (!grid.isWalkableAt(x, y + 1)) {
+                        neighbors.push([x + dx, y + 1]);
+                    }
+                    if (!grid.isWalkableAt(x, y - 1)) {
+                        neighbors.push([x + dx, y - 1]);
+                    }
+                }
+            }
+        }
+    }
+    // return all neighbors
+    else {
+        neighborNodes = grid.getNeighbors(node, DiagonalMovement.IfAtMostOneObstacle);
+        for (i = 0, l = neighborNodes.length; i < l; ++i) {
+            neighborNode = neighborNodes[i];
+            neighbors.push([neighborNode.x, neighborNode.y]);
+        }
+    }
+
+    return neighbors;
+};
+
+module.exports = JPFMoveDiagonallyIfAtMostOneObstacle;
+
+
+/***/ }),
+/* 84 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8437,11 +11130,11 @@ var WorkerMessageType;
 __webpack_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
-var injectStylesIntoStyleTag = __webpack_require__(26);
+var injectStylesIntoStyleTag = __webpack_require__(35);
 var injectStylesIntoStyleTag_default = /*#__PURE__*/__webpack_require__.n(injectStylesIntoStyleTag);
 
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/resolve-url-loader!./node_modules/sass-loader/dist/cjs.js!./src/app/client/main.scss
-var main = __webpack_require__(17);
+var main = __webpack_require__(26);
 
 // CONCATENATED MODULE: ./src/app/client/main.scss
 
@@ -9533,7 +12226,7 @@ var OperatorSubscriber_OperatorSubscriber = (function (_super) {
 // CONCATENATED MODULE: ./node_modules/rxjs/dist/esm5/internal/operators/map.js
 
 
-function map(project, thisArg) {
+function map_map(project, thisArg) {
     return operate(function (source, subscriber) {
         var index = 0;
         source.subscribe(new OperatorSubscriber_OperatorSubscriber(subscriber, function (value) {
@@ -10069,7 +12762,7 @@ function handleReset(reset, on) {
 const filterById = (source, id) => {
   return source.pipe(filter(entity => {
     return entity.id === id;
-  }), map(entity => {
+  }), map_map(entity => {
     return entity.value;
   }), share());
 };
@@ -10323,7 +13016,7 @@ var ReplaySubject_ReplaySubject = (function (_super) {
 
 //# sourceMappingURL=ReplaySubject.js.map
 // EXTERNAL MODULE: ./node_modules/threads/dist-esm/master/spawn.js
-var spawn = __webpack_require__(25);
+var spawn = __webpack_require__(34);
 
 // CONCATENATED MODULE: ./node_modules/threads/dist-esm/master/get-bundle-url.browser.js
 // Source: <https://github.com/parcel-bundler/parcel/blob/master/packages/core/parcel-bundler/src/builtins/bundle-url.js>
@@ -10429,10 +13122,10 @@ const master_BlobWorker = getWorkerImplementation().blob;
 const master_Worker = getWorkerImplementation().default;
 
 // EXTERNAL MODULE: ./node_modules/threads/register.js
-var register = __webpack_require__(42);
+var register = __webpack_require__(51);
 
 // EXTERNAL MODULE: ./node_modules/threads-plugin/dist/loader.js?name=network!./src/app/client/network/client-network-thread.ts
-var client_network_thread = __webpack_require__(28);
+var client_network_thread = __webpack_require__(37);
 var client_network_thread_default = /*#__PURE__*/__webpack_require__.n(client_network_thread);
 
 // CONCATENATED MODULE: ./src/app/client/utils/worker-url.utils.ts
@@ -10591,7 +13284,7 @@ function mergeInternals(source, subscriber, project, concurrent, onBeforeNext, e
 function mergeMap(project, resultSelector, concurrent) {
     if (concurrent === void 0) { concurrent = Infinity; }
     if (isFunction(resultSelector)) {
-        return mergeMap(function (a, i) { return map(function (b, ii) { return resultSelector(a, b, i, ii); })(innerFrom(project(a, i))); }, concurrent);
+        return mergeMap(function (a, i) { return map_map(function (b, ii) { return resultSelector(a, b, i, ii); })(innerFrom(project(a, i))); }, concurrent);
     }
     else if (typeof resultSelector === 'number') {
         concurrent = resultSelector;
@@ -10600,7 +13293,7 @@ function mergeMap(project, resultSelector, concurrent) {
 }
 //# sourceMappingURL=mergeMap.js.map
 // EXTERNAL MODULE: ./src/app/shared/config/common-shared-config.ts
-var common_shared_config = __webpack_require__(31);
+var common_shared_config = __webpack_require__(40);
 
 // CONCATENATED MODULE: ./src/app/shared/config/shared-config.prod.ts
 
@@ -10617,7 +13310,7 @@ common_client_config_CommonClientConfig.SERVER_HOSTS = [{
 
 class client_config_prod_ClientConfig extends common_client_config_CommonClientConfig {}
 // EXTERNAL MODULE: ./node_modules/deepmerge/dist/cjs.js
-var cjs = __webpack_require__(32);
+var cjs = __webpack_require__(41);
 var cjs_default = /*#__PURE__*/__webpack_require__.n(cjs);
 
 // CONCATENATED MODULE: ./src/app/shared/time-map-buffer/time-map-buffer.ts
@@ -10763,7 +13456,7 @@ let client_network_buffered_wrapper_ClientNetworkBufferedWrapper = class ClientN
     this.data$ = thread.data$.pipe(mergeMap(data => {
       return data;
     }));
-    this.buffer.data$.pipe(map(data => {
+    this.buffer.data$.pipe(map_map(data => {
       return mapNetworkMessages(data);
     })).subscribe(messages => {
       return this.sendMessagesToThread(messages);
@@ -10865,12 +13558,12 @@ let client_network_service_ClientNetworkService = class ClientNetworkService {
     this.joinResponse$ = this.onEvent(NetworkEvent.LOGIN);
     this.loginOk$ = this.joinResponse$.pipe(filter(response => {
       return response.status === LoginStatus.OK;
-    }), map(response => {
+    }), map_map(response => {
       return response;
     }), share());
     this.loginFailed$ = this.joinResponse$.pipe(filter(response => {
       return response.status !== LoginStatus.OK;
-    }), map(response => {
+    }), map_map(response => {
       return response.status;
     }), share());
     this.storesData$ = this.onEvent(NetworkEvent.STORE);
@@ -10894,7 +13587,7 @@ let client_network_service_ClientNetworkService = class ClientNetworkService {
       return Array.from(Object.entries(store));
     }), filter(([storeId]) => {
       return storeId === targetStoreId;
-    }), map(([_, storeData]) => {
+    }), map_map(([_, storeData]) => {
       return storeData;
     }), share());
   }
@@ -10902,7 +13595,7 @@ let client_network_service_ClientNetworkService = class ClientNetworkService {
   onEvent(event) {
     return this.wrapper.data$.pipe(filter(message => {
       return message.event === event;
-    }), map(message => {
+    }), map_map(message => {
       return message.value;
     }), share());
   }
@@ -61144,6 +63837,9 @@ class controls_Controls {
   }
 
 }
+// EXTERNAL MODULE: ./node_modules/pathfinding/index.js
+var pathfinding = __webpack_require__(21);
+
 // CONCATENATED MODULE: ./node_modules/three/examples/jsm/loaders/GLTFLoader.js
 
 
@@ -65439,6 +68135,8 @@ const memoizedLoad = async assetPath => {
   mem.set(assetPath, item);
   return item;
 };
+// CONCATENATED MODULE: ./src/app/client/game/util/constants.ts
+const BLOCK_SIZE = 20;
 // CONCATENATED MODULE: ./src/app/client/game/enemy/enemy-factory.ts
 function enemy_factory_createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = enemy_factory_unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
 
@@ -65448,8 +68146,14 @@ function enemy_factory_arrayLikeToArray(arr, len) { if (len == null || len > arr
 
 
 
+
+
+let pathFindingGrid;
+const pathFinder = new pathfinding["AStarFinder"]({
+  diagonalMovement: pathfinding["DiagonalMovement"].OnlyWhenNoObstacles
+});
 const enemies = [];
-const enemyFactoryUpdateLoop = delta => {
+const enemyFactoryUpdateLoop = (delta, playerPosition) => {
   var _iterator = enemy_factory_createForOfIteratorHelper(enemies),
       _step;
 
@@ -65457,9 +68161,32 @@ const enemyFactoryUpdateLoop = delta => {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
       const {
         mixer,
-        animations
+        animations,
+        model,
+        state
       } = _step.value;
       mixer.update(delta);
+      const modelPositionX = Math.floor(model.position.x / BLOCK_SIZE);
+      const modelPositionZ = Math.floor(model.position.z / BLOCK_SIZE);
+
+      if (pathFindingGrid) {
+        const playerPositionX = Math.floor(playerPosition.x / BLOCK_SIZE);
+        const playerPositionZ = Math.floor(playerPosition.z / BLOCK_SIZE);
+
+        if (playerPositionX < pathFindingGrid.width && playerPositionX > 0 && playerPositionZ > 0 && playerPositionZ < pathFindingGrid.height) {
+          const [_, next] = pathFinder.findPath(modelPositionX, modelPositionZ, playerPositionX, playerPositionZ, pathFindingGrid.clone());
+
+          if (next) {
+            state.nextCell = new Vector3(next[0], 0, next[1]);
+          }
+        }
+      }
+
+      const newV = new Vector3(modelPositionX, 0, modelPositionZ).sub(state.nextCell).normalize();
+      console.log(newV, state.nextCell);
+      model.position.x -= newV.x;
+      model.position.z -= newV.z;
+      model.rotation.y = Math.atan2(playerPosition.x - model.position.x, playerPosition.z - model.position.z);
     }
   } catch (err) {
     _iterator.e(err);
@@ -65469,7 +68196,11 @@ const enemyFactoryUpdateLoop = delta => {
 };
 const createEnemy = async ({
   position
-}) => {
+}, map) => {
+  if (!pathFindingGrid) {
+    pathFindingGrid = new pathfinding["Grid"](map);
+  }
+
   const gltf = await memoizedLoad('assets/models/hench-ant.glb');
   const model = gltf.scene;
   model.position.set(position.x, position.y, position.z);
@@ -65481,7 +68212,11 @@ const createEnemy = async ({
   mixer.clipAction(clip).play();
   enemies.push({
     mixer,
-    animations: gltf.animations
+    animations: gltf.animations,
+    state: {
+      nextCell: position.clone()
+    },
+    model
   });
   return model;
 };
@@ -65609,9 +68344,10 @@ const createItem = async ({
 };
 // CONCATENATED MODULE: ./src/app/client/game/level/level-meta-data.ts
 const LEVEL_META_DATA = {
-  map: [[0, 0, 0, 0, 1], [0, 1, 0, 0, 0], [0, 1, 0, 1, 0], [0, 1, 0, 0, 0]]
+  map: [[0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0]]
 };
 // CONCATENATED MODULE: ./src/app/client/game/level/level-generator.ts
+
 
 
 class level_generator_LevelGenerator {
@@ -65647,7 +68383,7 @@ class level_generator_LevelGenerator {
     });
     const floor = new Mesh(floorGeometry, floorMaterial);
     scene.add(floor);
-    const boxGeometry = new BoxGeometry(20, 20, 20).toNonIndexed();
+    const boxGeometry = new BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE).toNonIndexed();
     position = boxGeometry.attributes.position;
     const colorsBox = [];
 
@@ -65670,9 +68406,9 @@ class level_generator_LevelGenerator {
               });
               boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
               const box = new Mesh(boxGeometry, boxMaterial);
-              box.position.x = i * 20;
+              box.position.x = i * BLOCK_SIZE - BLOCK_SIZE / 2;
               box.position.y = 10;
-              box.position.z = j * 20;
+              box.position.z = j * BLOCK_SIZE - BLOCK_SIZE / 2;
               scene.add(box);
               this.objects.push(box);
             }
@@ -65741,6 +68477,8 @@ class player_Player {
 
 
 
+
+
 const runGame = async () => {
   let camera;
   let scene;
@@ -65755,6 +68493,8 @@ const runGame = async () => {
   async function init() {
     camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.y = 10;
+    camera.position.x = 20;
+    camera.position.z = 20;
     scene = new Scene();
     scene.background = new Color(0xffffff);
     scene.fog = new Fog(0xffffff, 0, 750);
@@ -65768,8 +68508,8 @@ const runGame = async () => {
     });
     scene.add(object);
     const ant = await createEnemy({
-      position: new Vector3(10, 0, 10)
-    });
+      position: new Vector3(5 * BLOCK_SIZE, 0, 5 * BLOCK_SIZE)
+    }, LEVEL_META_DATA.map);
     scene.add(ant);
     const player = new player_Player();
     controls = new controls_Controls(camera, document.body, () => {
@@ -65813,7 +68553,7 @@ const runGame = async () => {
     gun.update(delta);
     prevTime = time;
     itemFactoryUpdateLoop(time);
-    enemyFactoryUpdateLoop(delta);
+    enemyFactoryUpdateLoop(delta, camera.position);
     renderer.render(scene, camera);
   }
 };
