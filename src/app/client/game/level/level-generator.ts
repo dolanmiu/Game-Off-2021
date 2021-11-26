@@ -80,9 +80,9 @@ export class LevelGenerator {
                   const boxMaterial = new MeshBasicMaterial({ vertexColors: true });
                   boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
                   const box = new Mesh(boxGeometry, boxMaterial);
-                  box.position.x = i * BLOCK_SIZE - (BLOCK_SIZE / 2);
+                  box.position.x = i * BLOCK_SIZE - BLOCK_SIZE / 2;
                   box.position.y = 10;
-                  box.position.z = j * BLOCK_SIZE - (BLOCK_SIZE / 2);
+                  box.position.z = j * BLOCK_SIZE - BLOCK_SIZE / 2;
                   scene.add(box);
                   this.objects.push(box);
                }
