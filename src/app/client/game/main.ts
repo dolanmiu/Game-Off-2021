@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { BufferGeometry, PerspectiveCamera, Vector3 } from 'three';
+import { BufferGeometry, Object3D, PerspectiveCamera, Vector3 } from 'three';
 
 import { Controls } from './controls/controls';
-import { createEnemy, enemyFactoryUpdateLoop } from './enemy/enemy-factory';
+import { createEnemy, enemyFactoryUpdateLoop, resetEnemy } from './enemy/enemy-factory';
 import { FirstPersonGun } from './gun/first-person-gun';
 import { createItem, itemFactoryUpdateLoop } from './item/item-factory';
 import { LevelGenerator } from './level/level-generator';
@@ -17,6 +17,7 @@ export const runGame = async (): Promise<void> => {
    let controls: Controls;
    let gun: FirstPersonGun;
    let levelGenerator: LevelGenerator;
+   let ant: Object3D;
 
    let prevTime = performance.now();
 
@@ -46,7 +47,7 @@ export const runGame = async (): Promise<void> => {
 
       scene.add(object);
 
-      const ant = await createEnemy(
+      ant = await createEnemy(
          {
             position: new THREE.Vector3(5 * BLOCK_SIZE, 0, 5 * BLOCK_SIZE),
          },
@@ -83,7 +84,9 @@ export const runGame = async (): Promise<void> => {
 
       levelGenerator = new LevelGenerator(scene);
 
-      gun = new FirstPersonGun(camera, scene);
+      gun = new FirstPersonGun(camera, scene, async (id) => {
+         await resetEnemy(scene, id, LEVEL_META_DATA.map);
+      });
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(window.devicePixelRatio);
@@ -102,7 +105,7 @@ export const runGame = async (): Promise<void> => {
       requestAnimationFrame(animate);
       const time = performance.now();
       const delta = (time - prevTime) / 1000;
-      controls.update(delta, levelGenerator.Objects);
+      controls.update(delta, levelGenerator.Objects, [ant]);
       gun.update(delta);
       prevTime = time;
 

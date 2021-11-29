@@ -1,4 +1,4 @@
-import { Audio, AudioListener, AudioLoader, Camera, Group, Raycaster, Scene, Vector2 } from 'three';
+import { Audio, AudioListener, AudioLoader, Camera, Group, Object3D, Raycaster, Scene, Vector2 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export class FirstPersonGun {
@@ -9,13 +9,12 @@ export class FirstPersonGun {
    private gunModel: Group | undefined;
    private downKey: string | undefined;
 
-   public constructor(camera: Camera, scene: Scene) {
+   public constructor(camera: Camera, scene: Scene, shootCallback: (object: Object3D) => void) {
       const loader = new GLTFLoader();
 
       loader.load(
          'assets/models/hand-gun.glb',
          (model) => {
-            console.log(model);
             model.scene.position.set(1, -0.5, -1.5);
             model.scene.rotation.set(0, (Math.PI * 2) / 4 + Math.PI, 0);
             model.scene.scale.set(2, 2, 2);
@@ -47,7 +46,7 @@ export class FirstPersonGun {
       const audioLoader = new AudioLoader();
       audioLoader.load('assets/sounds/gunshot.ogg', (buffer) => {
          sound.setBuffer(buffer);
-         sound.setVolume(0.5);
+         sound.setVolume(0.3);
       });
 
       window.addEventListener('click', () => {
@@ -56,8 +55,7 @@ export class FirstPersonGun {
          const intersects = this.raycaster.intersectObjects(scene.children);
 
          for (let i = 0; i < intersects.length; i++) {
-            console.log('shooting at', intersects[i].object);
-            //  intersects[i].object.material.color.set(0xff0000);
+            shootCallback(intersects[i].object);
          }
          if (sound.isPlaying) {
             sound.stop();

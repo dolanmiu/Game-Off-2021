@@ -1,5 +1,6 @@
 import { Box3, Camera, Object3D, Raycaster, Sphere, Vector3 } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
+import { enemies } from '../enemy/enemy-factory';
 
 import { MovementControls } from './movement-controls';
 
@@ -31,6 +32,14 @@ export class Controls {
             if (this.sphere.intersectsBox(boundingBox)) {
                this.movementControls.Velocity.z = 0;
                this.movementControls.Velocity.x = 0;
+            }
+         }
+
+         for (const [, { model }] of enemies) {
+            this.sphere.center = this.camera.position;
+            const boundingBox = new Box3().setFromObject(model);
+            if (this.sphere.intersectsBox(boundingBox)) {
+               console.log('dead')
             }
          }
 

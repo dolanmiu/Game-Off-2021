@@ -1,8 +1,9 @@
-import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three';
+import { AnimationClip, AnimationMixer, Object3D, Scene, Vector3 } from 'three';
 import * as PF from 'pathfinding';
 
 import { memoizedLoad } from '../util/model-loader';
 import { BLOCK_SIZE } from '../util/constants';
+import { getRandomSpawnPoint } from '../level/level-meta-data';
 
 let pathFindingGrid: PF.Grid | undefined;
 const pathFinder = new PF.AStarFinder({
@@ -17,10 +18,10 @@ interface Enemy {
    };
 }
 
-const enemies: Enemy[] = [];
+export const enemies = new Map<number, Enemy>();
 
 export const enemyFactoryUpdateLoop = (delta: number, playerPosition: Vector3): void => {
-   for (const { mixer, animations, model, state } of enemies) {
+   for (const [, { mixer, animations, model, state }] of enemies) {
       mixer.update(delta);
 
       const modelPositionX = Math.floor(model.position.x / BLOCK_SIZE);
@@ -34,21 +35,25 @@ export const enemyFactoryUpdateLoop = (delta: number, playerPosition: Vector3): 
             playerPositionZ > 0 &&
             playerPositionZ < pathFindingGrid.height
          ) {
-            const [_, next] = pathFinder.findPath(
-               modelPositionX,
-               modelPositionZ,
-               playerPositionX,
-               playerPositionZ,
-               pathFindingGrid.clone(),
-            );
-            if (next) {
-               state.nextCell = new Vector3(next[0], 0, next[1]);
+            try {
+               const [_, next] = pathFinder.findPath(
+                  modelPositionX,
+                  modelPositionZ,
+                  playerPositionX,
+                  playerPositionZ,
+                  pathFindingGrid.clone(),
+               );
+               if (next) {
+                  state.nextCell = new Vector3(next[0], 0, next[1]);
+               }
+            } catch {
+               const pos = getRandomSpawnPoint();
+               model.position.set(pos.x * BLOCK_SIZE, 0, pos.z * BLOCK_SIZE);
             }
          }
       }
 
       const newV = new Vector3(modelPositionX, 0, modelPositionZ).sub(state.nextCell).normalize();
-      console.log(newV, state.nextCell);
       model.position.x -= newV.x;
       model.position.z -= newV.z;
       model.rotation.y = Math.atan2(playerPosition.x - model.position.x, playerPosition.z - model.position.z);
@@ -67,18 +72,42 @@ export const createEnemy = async ({ position }: { readonly position: Vector3 }, 
    model.rotation.set(0, (Math.PI * 2) / 4 + Math.PI, 0);
 
    const mixer = new AnimationMixer(model);
-   console.log(gltf.animations);
    const clip = gltf.animations[2];
    mixer.clipAction(clip).play();
 
-   enemies.push({
+   const enemy = {
       mixer,
       animations: gltf.animations,
       state: {
          nextCell: position.clone(),
       },
       model,
-   });
+   };
+
+   enemies.set(model.id, enemy);
 
    return model;
+};
+
+export const resetEnemy = async (scene: Scene, object: Object3D, map: number[][]): Promise<void> => {
+   const bodyPart = object;
+   const spawnPoint = getRandomSpawnPoint();
+
+   let curr = bodyPart;
+
+   if (!curr) {
+      return;
+   }
+
+   while (curr.parent !== null && !enemies.has(curr.id)) {
+      curr = curr.parent;
+   }
+
+   if (!enemies.has(curr.id)) {
+      return;
+   }
+   scene.remove(curr);
+   enemies.delete(curr.id);
+   const ant = await createEnemy({ position: new Vector3(spawnPoint.x * BLOCK_SIZE, 0, spawnPoint.z * BLOCK_SIZE) }, map);
+   scene.add(ant);
 };
