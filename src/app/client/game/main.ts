@@ -6,7 +6,7 @@ import { createEnemy, enemyFactoryUpdateLoop, killAllEnemies, loadEnemyAudio, re
 import { FirstPersonGun } from './gun/first-person-gun';
 import { createItem, itemFactoryUpdateLoop } from './item/item-factory';
 import { LevelGenerator } from './level/level-generator';
-import { getRandomSpawnPoint } from './level/level-meta-data';
+import { getRandomSpawnPoint, LEVEL_META_DATA } from './level/level-meta-data';
 import { BLOCK_SIZE } from './util/constants';
 
 let gameEnd = false;
@@ -21,6 +21,7 @@ export const runGame = async (): Promise<void> => {
    let levelGenerator: LevelGenerator;
    let gameOverSound: Audio;
    let winSound: Audio;
+   let ambienceSound: Audio;
 
    let prevTime = performance.now();
 
@@ -36,8 +37,8 @@ export const runGame = async (): Promise<void> => {
    async function init() {
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
       camera.position.y = 10;
-      camera.position.x = 20 - (BLOCK_SIZE / 2);
-      camera.position.z = 20 - (BLOCK_SIZE / 2);
+      camera.position.x = 20 - BLOCK_SIZE / 2;
+      camera.position.z = 20 - BLOCK_SIZE / 2;
 
       const listener = new AudioListener();
       camera.add(listener);
@@ -54,6 +55,13 @@ export const runGame = async (): Promise<void> => {
       audioLoader.load('assets/sounds/win.wav', (buffer) => {
          winSound.setBuffer(buffer);
          winSound.setVolume(0.5);
+      });
+      ambienceSound = new Audio(listener);
+      audioLoader.load('assets/sounds/ambience.ogg', (buffer) => {
+         ambienceSound.setBuffer(buffer);
+         ambienceSound.setVolume(0.2);
+         ambienceSound.setLoop(true);
+         ambienceSound.play();
       });
 
       scene = new THREE.Scene();
@@ -116,9 +124,9 @@ export const runGame = async (): Promise<void> => {
                   position: new THREE.Vector3(randomPosition.x * BLOCK_SIZE, 0, randomPosition.z * BLOCK_SIZE),
                }),
             );
-            camera.position.y = 10;
-            camera.position.x = 20;
-            camera.position.z = 20;
+            const pos = getRandomSpawnPoint();
+            camera.position.x = pos.x * BLOCK_SIZE - BLOCK_SIZE / 2;
+            camera.position.z = pos.z * BLOCK_SIZE - BLOCK_SIZE / 2;
          });
       }
 
@@ -146,6 +154,17 @@ export const runGame = async (): Promise<void> => {
 
    function animate() {
       requestAnimationFrame(animate);
+      if (
+         camera.position.x > LEVEL_META_DATA.map.length * BLOCK_SIZE ||
+         camera.position.x < 0 ||
+         camera.position.z > LEVEL_META_DATA.map[0].length * BLOCK_SIZE ||
+         camera.position.z < 0
+      ) {
+         const pos = getRandomSpawnPoint();
+
+         camera.position.x = pos.x * BLOCK_SIZE - BLOCK_SIZE / 2;
+         camera.position.z = pos.z * BLOCK_SIZE - BLOCK_SIZE / 2;
+      }
 
       if (gameEnd || win) {
          return;

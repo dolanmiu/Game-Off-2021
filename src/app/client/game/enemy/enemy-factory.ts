@@ -23,7 +23,7 @@ export const loadEnemyAudio = (listener: AudioListener): void => {
    sound = new PositionalAudio(listener);
    const audioLoader = new AudioLoader();
    audioLoader.load('assets/sounds/stomp.wav', (buffer) => {
-      sound.setVolume(1);
+      sound.setVolume(3);
       sound.setRolloffFactor(2);
       sound.setBuffer(buffer);
       sound.setLoop(true);
@@ -31,7 +31,10 @@ export const loadEnemyAudio = (listener: AudioListener): void => {
          if (!sound) {
             return;
          }
-         sound.setDetune(Math.random() * 500);
+         try {
+            sound.setDetune(Math.random() * 500);
+            // eslint-disable-next-line no-empty
+         } catch {}
       }, 500);
    });
 };
