@@ -5045,7 +5045,7 @@ module.exports = function (cssWithMappingToString) {
 /* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1637891127808"
+module.exports = __webpack_require__.p + "0.main.worker.js?1638232994574"
 
 /***/ }),
 /* 38 */
@@ -12226,7 +12226,7 @@ var OperatorSubscriber_OperatorSubscriber = (function (_super) {
 // CONCATENATED MODULE: ./node_modules/rxjs/dist/esm5/internal/operators/map.js
 
 
-function map_map(project, thisArg) {
+function map(project, thisArg) {
     return operate(function (source, subscriber) {
         var index = 0;
         source.subscribe(new OperatorSubscriber_OperatorSubscriber(subscriber, function (value) {
@@ -12762,7 +12762,7 @@ function handleReset(reset, on) {
 const filterById = (source, id) => {
   return source.pipe(filter(entity => {
     return entity.id === id;
-  }), map_map(entity => {
+  }), map(entity => {
     return entity.value;
   }), share());
 };
@@ -13284,7 +13284,7 @@ function mergeInternals(source, subscriber, project, concurrent, onBeforeNext, e
 function mergeMap(project, resultSelector, concurrent) {
     if (concurrent === void 0) { concurrent = Infinity; }
     if (isFunction(resultSelector)) {
-        return mergeMap(function (a, i) { return map_map(function (b, ii) { return resultSelector(a, b, i, ii); })(innerFrom(project(a, i))); }, concurrent);
+        return mergeMap(function (a, i) { return map(function (b, ii) { return resultSelector(a, b, i, ii); })(innerFrom(project(a, i))); }, concurrent);
     }
     else if (typeof resultSelector === 'number') {
         concurrent = resultSelector;
@@ -13456,7 +13456,7 @@ let client_network_buffered_wrapper_ClientNetworkBufferedWrapper = class ClientN
     this.data$ = thread.data$.pipe(mergeMap(data => {
       return data;
     }));
-    this.buffer.data$.pipe(map_map(data => {
+    this.buffer.data$.pipe(map(data => {
       return mapNetworkMessages(data);
     })).subscribe(messages => {
       return this.sendMessagesToThread(messages);
@@ -13558,12 +13558,12 @@ let client_network_service_ClientNetworkService = class ClientNetworkService {
     this.joinResponse$ = this.onEvent(NetworkEvent.LOGIN);
     this.loginOk$ = this.joinResponse$.pipe(filter(response => {
       return response.status === LoginStatus.OK;
-    }), map_map(response => {
+    }), map(response => {
       return response;
     }), share());
     this.loginFailed$ = this.joinResponse$.pipe(filter(response => {
       return response.status !== LoginStatus.OK;
-    }), map_map(response => {
+    }), map(response => {
       return response.status;
     }), share());
     this.storesData$ = this.onEvent(NetworkEvent.STORE);
@@ -13587,7 +13587,7 @@ let client_network_service_ClientNetworkService = class ClientNetworkService {
       return Array.from(Object.entries(store));
     }), filter(([storeId]) => {
       return storeId === targetStoreId;
-    }), map_map(([_, storeData]) => {
+    }), map(([_, storeData]) => {
       return storeData;
     }), share());
   }
@@ -13595,7 +13595,7 @@ let client_network_service_ClientNetworkService = class ClientNetworkService {
   onEvent(event) {
     return this.wrapper.data$.pipe(filter(message => {
       return message.event === event;
-    }), map_map(message => {
+    }), map(message => {
       return message.value;
     }), share());
   }
@@ -63672,171 +63672,6 @@ class PointerLockControls_PointerLockControls extends EventDispatcher {
 
 
 
-// CONCATENATED MODULE: ./src/app/client/game/controls/movement-controls.ts
-
-class movement_controls_MovementControls {
-  constructor() {
-    this.moveForward = false;
-    this.moveBackward = false;
-    this.moveLeft = false;
-    this.moveRight = false;
-    this.canJump = false;
-    this.velocity = new Vector3();
-    this.direction = new Vector3();
-    document.addEventListener('keydown', event => {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          this.moveForward = true;
-          break;
-
-        case 'ArrowLeft':
-        case 'KeyA':
-          this.moveLeft = true;
-          break;
-
-        case 'ArrowDown':
-        case 'KeyS':
-          this.moveBackward = true;
-          break;
-
-        case 'ArrowRight':
-        case 'KeyD':
-          this.moveRight = true;
-          break;
-
-        case 'Space':
-          if (this.canJump === true) {
-            this.velocity.y += 350;
-          }
-
-          this.canJump = false;
-          break;
-      }
-    });
-    document.addEventListener('keyup', event => {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          this.moveForward = false;
-          break;
-
-        case 'ArrowLeft':
-        case 'KeyA':
-          this.moveLeft = false;
-          break;
-
-        case 'ArrowDown':
-        case 'KeyS':
-          this.moveBackward = false;
-          break;
-
-        case 'ArrowRight':
-        case 'KeyD':
-          this.moveRight = false;
-          break;
-      }
-    });
-  }
-
-  update(delta, isLocked) {
-    if (isLocked) {
-      this.velocity.x -= this.velocity.x * 10.0 * delta;
-      this.velocity.z -= this.velocity.z * 10.0 * delta;
-      this.velocity.y -= 9.8 * 100.0 * delta;
-      this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
-      this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
-      this.direction.normalize();
-
-      if (this.moveForward || this.moveBackward) {
-        this.velocity.z -= this.direction.z * 400.0 * delta;
-      }
-
-      if (this.moveLeft || this.moveRight) {
-        this.velocity.x -= this.direction.x * 400.0 * delta;
-      }
-    }
-  }
-
-  get Velocity() {
-    return this.velocity;
-  }
-
-}
-// CONCATENATED MODULE: ./src/app/client/game/controls/controls.ts
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return _arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return _arrayLikeToArray(o, minLen); } }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-
-
-
-class controls_Controls {
-  constructor(camera, domElement, onLock, onUnlock) {
-    this.camera = camera;
-    this.movementControls = new movement_controls_MovementControls();
-    this.pointerLockControls = new PointerLockControls_PointerLockControls(camera, domElement);
-    this.pointerLockControls.addEventListener('lock', onLock);
-    this.pointerLockControls.addEventListener('unlock', onUnlock);
-    this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0, 10);
-    this.sphere = new Sphere(this.camera.position, 5);
-  }
-
-  update(delta, objects) {
-    if (this.pointerLockControls.isLocked === true) {
-      this.raycaster.ray.origin.copy(this.camera.position);
-      this.raycaster.ray.origin.y -= 10;
-
-      var _iterator = _createForOfIteratorHelper(objects),
-          _step;
-
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          const o = _step.value;
-          this.sphere.center = this.camera.position;
-          const boundingBox = new Box3().setFromObject(o);
-
-          if (this.sphere.intersectsBox(boundingBox)) {
-            this.movementControls.Velocity.z = 0;
-            this.movementControls.Velocity.x = 0;
-          }
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-
-      this.movementControls.update(delta, this.pointerLockControls.isLocked);
-
-      if (this.raycaster.intersectObjects(objects, false).length > 0) {
-        this.movementControls.Velocity.y = Math.max(0, this.movementControls.Velocity.y);
-        this.movementControls.canJump = true;
-      }
-
-      this.pointerLockControls.moveRight(-this.movementControls.Velocity.x * delta);
-      this.pointerLockControls.moveForward(-this.movementControls.Velocity.z * delta);
-      this.camera.position.y += this.movementControls.Velocity.y * delta;
-
-      if (this.camera.position.y < 10) {
-        this.movementControls.Velocity.y = 0;
-        this.camera.position.y = 10;
-        this.movementControls.canJump = true;
-      }
-    }
-  }
-
-  lock() {
-    this.pointerLockControls.lock();
-  }
-
-  get isLocked() {
-    return this.pointerLockControls.isLocked;
-  }
-
-}
 // EXTERNAL MODULE: ./node_modules/pathfinding/index.js
 var pathfinding = __webpack_require__(21);
 
@@ -68137,12 +67972,41 @@ const memoizedLoad = async assetPath => {
 };
 // CONCATENATED MODULE: ./src/app/client/game/util/constants.ts
 const BLOCK_SIZE = 20;
+// CONCATENATED MODULE: ./src/app/client/game/level/level-meta-data.ts
+
+const LEVEL_META_DATA = {
+  map: [[0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0]]
+};
+const spawnPoints = [];
+
+const getSpawnPoints = () => {
+  if (spawnPoints.length > 0) {
+    return spawnPoints;
+  }
+
+  for (let i = 0; i < LEVEL_META_DATA.map.length; i++) {
+    for (let j = 0; j < LEVEL_META_DATA.map[i].length; j++) {
+      if (LEVEL_META_DATA.map[i][j] === 0) {
+        spawnPoints.push(new Vector3(i, 0, j));
+      }
+    }
+  }
+
+  return spawnPoints;
+};
+
+const getRandomSpawnPoint = () => {
+  const spawnPoints = getSpawnPoints();
+  const index = Math.floor(Math.random() * spawnPoints.length);
+  return spawnPoints[index];
+};
 // CONCATENATED MODULE: ./src/app/client/game/enemy/enemy-factory.ts
-function enemy_factory_createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = enemy_factory_unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
 
-function enemy_factory_unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return enemy_factory_arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return enemy_factory_arrayLikeToArray(o, minLen); } }
+function _unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return _arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return _arrayLikeToArray(o, minLen); } }
 
-function enemy_factory_arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 
 
 
@@ -68152,19 +68016,18 @@ let pathFindingGrid;
 const pathFinder = new pathfinding["AStarFinder"]({
   diagonalMovement: pathfinding["DiagonalMovement"].OnlyWhenNoObstacles
 });
-const enemies = [];
+const enemies = new Map();
 const enemyFactoryUpdateLoop = (delta, playerPosition) => {
-  var _iterator = enemy_factory_createForOfIteratorHelper(enemies),
+  var _iterator = _createForOfIteratorHelper(enemies),
       _step;
 
   try {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
-      const {
+      const [, {
         mixer,
-        animations,
         model,
         state
-      } = _step.value;
+      }] = _step.value;
       mixer.update(delta);
       const modelPositionX = Math.floor(model.position.x / BLOCK_SIZE);
       const modelPositionZ = Math.floor(model.position.z / BLOCK_SIZE);
@@ -68174,18 +68037,22 @@ const enemyFactoryUpdateLoop = (delta, playerPosition) => {
         const playerPositionZ = Math.floor(playerPosition.z / BLOCK_SIZE);
 
         if (playerPositionX < pathFindingGrid.width && playerPositionX > 0 && playerPositionZ > 0 && playerPositionZ < pathFindingGrid.height) {
-          const [_, next] = pathFinder.findPath(modelPositionX, modelPositionZ, playerPositionX, playerPositionZ, pathFindingGrid.clone());
+          try {
+            const [_, next] = pathFinder.findPath(modelPositionX, modelPositionZ, playerPositionX, playerPositionZ, pathFindingGrid.clone());
 
-          if (next) {
-            state.nextCell = new Vector3(next[0], 0, next[1]);
+            if (next) {
+              state.nextCell = new Vector3(next[0], 0, next[1]);
+            }
+          } catch (_a) {
+            const pos = getRandomSpawnPoint();
+            model.position.set(pos.x * BLOCK_SIZE, 0, pos.z * BLOCK_SIZE);
           }
         }
       }
 
       const newV = new Vector3(modelPositionX, 0, modelPositionZ).sub(state.nextCell).normalize();
-      console.log(newV, state.nextCell);
-      model.position.x -= newV.x;
-      model.position.z -= newV.z;
+      model.position.x -= newV.x / 2;
+      model.position.z -= newV.z / 2;
       model.rotation.y = Math.atan2(playerPosition.x - model.position.x, playerPosition.z - model.position.z);
     }
   } catch (err) {
@@ -68196,9 +68063,9 @@ const enemyFactoryUpdateLoop = (delta, playerPosition) => {
 };
 const createEnemy = async ({
   position
-}, map) => {
+}) => {
   if (!pathFindingGrid) {
-    pathFindingGrid = new pathfinding["Grid"](map);
+    pathFindingGrid = new pathfinding["Grid"](LEVEL_META_DATA.map);
   }
 
   const gltf = await memoizedLoad('assets/models/hench-ant.glb');
@@ -68207,29 +68074,264 @@ const createEnemy = async ({
   model.scale.set(10, 10, 10);
   model.rotation.set(0, Math.PI * 2 / 4 + Math.PI, 0);
   const mixer = new AnimationMixer(model);
-  console.log(gltf.animations);
   const clip = gltf.animations[2];
   mixer.clipAction(clip).play();
-  enemies.push({
+  const enemy = {
     mixer,
     animations: gltf.animations,
     state: {
       nextCell: position.clone()
     },
     model
-  });
+  };
+  enemies.set(model.id, enemy);
   return model;
 };
+const resetEnemy = async (scene, object) => {
+  const bodyPart = object;
+  const spawnPoint = getRandomSpawnPoint();
+  let curr = bodyPart;
+
+  if (!curr) {
+    return;
+  }
+
+  while (curr.parent !== null && !enemies.has(curr.id)) {
+    curr = curr.parent;
+  }
+
+  if (!enemies.has(curr.id)) {
+    return;
+  }
+
+  scene.remove(curr);
+  enemies.delete(curr.id);
+  const ant = await createEnemy({
+    position: new Vector3(spawnPoint.x * BLOCK_SIZE, 0, spawnPoint.z * BLOCK_SIZE)
+  });
+  scene.add(ant);
+};
+const killAllEnemies = scene => {
+  var _iterator2 = _createForOfIteratorHelper(enemies),
+      _step2;
+
+  try {
+    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+      const [, {
+        model
+      }] = _step2.value;
+      scene.remove(model);
+      enemies.delete(model.id);
+    }
+  } catch (err) {
+    _iterator2.e(err);
+  } finally {
+    _iterator2.f();
+  }
+};
+// CONCATENATED MODULE: ./src/app/client/game/controls/movement-controls.ts
+
+class movement_controls_MovementControls {
+  constructor() {
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.canJump = false;
+    this.velocity = new Vector3();
+    this.direction = new Vector3();
+    document.addEventListener('keydown', event => {
+      switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+          this.moveForward = true;
+          break;
+
+        case 'ArrowLeft':
+        case 'KeyA':
+          this.moveLeft = true;
+          break;
+
+        case 'ArrowDown':
+        case 'KeyS':
+          this.moveBackward = true;
+          break;
+
+        case 'ArrowRight':
+        case 'KeyD':
+          this.moveRight = true;
+          break;
+
+        case 'Space':
+          break;
+      }
+    });
+    document.addEventListener('keyup', event => {
+      switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+          this.moveForward = false;
+          break;
+
+        case 'ArrowLeft':
+        case 'KeyA':
+          this.moveLeft = false;
+          break;
+
+        case 'ArrowDown':
+        case 'KeyS':
+          this.moveBackward = false;
+          break;
+
+        case 'ArrowRight':
+        case 'KeyD':
+          this.moveRight = false;
+          break;
+      }
+    });
+  }
+
+  update(delta, isLocked) {
+    if (isLocked) {
+      this.velocity.x -= this.velocity.x * 10.0 * delta;
+      this.velocity.z -= this.velocity.z * 10.0 * delta;
+      this.velocity.y -= 9.8 * 100.0 * delta;
+      this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
+      this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
+      this.direction.normalize();
+
+      if (this.moveForward || this.moveBackward) {
+        this.velocity.z -= this.direction.z * 400.0 * delta;
+      }
+
+      if (this.moveLeft || this.moveRight) {
+        this.velocity.x -= this.direction.x * 400.0 * delta;
+      }
+    }
+  }
+
+  get Velocity() {
+    return this.velocity;
+  }
+
+}
+// CONCATENATED MODULE: ./src/app/client/game/controls/controls.ts
+function controls_createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = controls_unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) { o = it; } var i = 0; var F = function () {}; return { s: F, n: function () { if (i >= o.length) { return { done: true }; } return { done: false, value: o[i++] }; }, e: function (e) { throw e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function () { it = it.call(o); }, n: function () { var step = it.next(); normalCompletion = step.done; return step; }, e: function (e) { didErr = true; err = e; }, f: function () { try { if (!normalCompletion && it.return != null) { it.return(); } } finally { if (didErr) { throw err; } } } }; }
+
+function controls_unsupportedIterableToArray(o, minLen) { if (!o) { return; } if (typeof o === "string") { return controls_arrayLikeToArray(o, minLen); } var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) { n = o.constructor.name; } if (n === "Map" || n === "Set") { return Array.from(o); } if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) { return controls_arrayLikeToArray(o, minLen); } }
+
+function controls_arrayLikeToArray(arr, len) { if (len == null || len > arr.length) { len = arr.length; } for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+
+
+
+
+class controls_Controls {
+  constructor(camera, domElement, goal, onLock, onUnlock) {
+    this.camera = camera;
+    this.goal = goal;
+    this.movementControls = new movement_controls_MovementControls();
+    this.pointerLockControls = new PointerLockControls_PointerLockControls(camera, domElement);
+    this.pointerLockControls.addEventListener('lock', onLock);
+    this.pointerLockControls.addEventListener('unlock', onUnlock);
+    this.raycaster = new Raycaster(new Vector3(), new Vector3(0, -1, 0), 0, 10);
+    this.sphere = new Sphere(this.camera.position, 5);
+  }
+
+  update(delta, objects, onDead, onWin) {
+    if (this.pointerLockControls.isLocked === true) {
+      this.raycaster.ray.origin.copy(this.camera.position);
+      this.raycaster.ray.origin.y -= 10;
+
+      var _iterator = controls_createForOfIteratorHelper(objects),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          const o = _step.value;
+          this.sphere.center = this.camera.position;
+          const boundingBox = new Box3().setFromObject(o);
+
+          if (this.sphere.intersectsBox(boundingBox)) {
+            this.movementControls.Velocity.z = 0;
+            this.movementControls.Velocity.x = 0;
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+
+      var _iterator2 = controls_createForOfIteratorHelper(enemies),
+          _step2;
+
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          const [, {
+            model
+          }] = _step2.value;
+          this.sphere.center = this.camera.position;
+          const boundingBox = new Box3().setFromObject(model);
+
+          if (this.sphere.intersectsBox(boundingBox)) {
+            onDead();
+          }
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+
+      this.sphere.center = this.camera.position;
+      const boundingBox = new Box3().setFromObject(this.goal);
+
+      if (this.sphere.intersectsBox(boundingBox)) {
+        onWin();
+      }
+
+      this.movementControls.update(delta, this.pointerLockControls.isLocked);
+
+      if (this.raycaster.intersectObjects(objects, false).length > 0) {
+        this.movementControls.Velocity.y = Math.max(0, this.movementControls.Velocity.y);
+        this.movementControls.canJump = true;
+      }
+
+      this.pointerLockControls.moveRight(-this.movementControls.Velocity.x * delta);
+      this.pointerLockControls.moveForward(-this.movementControls.Velocity.z * delta);
+      this.camera.position.y += this.movementControls.Velocity.y * delta;
+
+      if (this.camera.position.y < 10) {
+        this.movementControls.Velocity.y = 0;
+        this.camera.position.y = 10;
+        this.movementControls.canJump = true;
+      }
+    }
+  }
+
+  lock() {
+    this.pointerLockControls.lock();
+  }
+
+  unlock() {
+    this.pointerLockControls.unlock();
+  }
+
+  get isLocked() {
+    return this.pointerLockControls.isLocked;
+  }
+
+}
 // CONCATENATED MODULE: ./src/app/client/game/gun/first-person-gun.ts
 
 
 class first_person_gun_FirstPersonGun {
-  constructor(camera, scene) {
+  constructor(camera, scene, shootCallback) {
     this.bob = 0;
     this.isBobbing = false;
     const loader = new GLTFLoader_GLTFLoader();
     loader.load('assets/models/hand-gun.glb', model => {
-      console.log(model);
       model.scene.position.set(1, -0.5, -1.5);
       model.scene.rotation.set(0, Math.PI * 2 / 4 + Math.PI, 0);
       model.scene.scale.set(2, 2, 2);
@@ -68250,14 +68352,14 @@ class first_person_gun_FirstPersonGun {
     const audioLoader = new AudioLoader();
     audioLoader.load('assets/sounds/gunshot.ogg', buffer => {
       sound.setBuffer(buffer);
-      sound.setVolume(0.5);
+      sound.setVolume(0.3);
     });
     window.addEventListener('click', () => {
       this.raycaster.setFromCamera(this.mousePosition, camera);
       const intersects = this.raycaster.intersectObjects(scene.children);
 
       for (let i = 0; i < intersects.length; i++) {
-        console.log('shooting at', intersects[i].object);
+        shootCallback(intersects[i].object);
       }
 
       if (sound.isPlaying) {
@@ -68342,10 +68444,6 @@ const createItem = async ({
   items.push(parent);
   return parent;
 };
-// CONCATENATED MODULE: ./src/app/client/game/level/level-meta-data.ts
-const LEVEL_META_DATA = {
-  map: [[0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0]]
-};
 // CONCATENATED MODULE: ./src/app/client/game/level/level-generator.ts
 
 
@@ -68383,7 +68481,7 @@ class level_generator_LevelGenerator {
     });
     const floor = new Mesh(floorGeometry, floorMaterial);
     scene.add(floor);
-    const boxGeometry = new BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE).toNonIndexed();
+    const boxGeometry = new BoxGeometry(BLOCK_SIZE, BLOCK_SIZE * 10, BLOCK_SIZE).toNonIndexed();
     position = boxGeometry.attributes.position;
     const colorsBox = [];
 
@@ -68422,52 +68520,6 @@ class level_generator_LevelGenerator {
   }
 
 }
-// CONCATENATED MODULE: ./src/app/client/game/player/inventory.ts
-var ItemCategory;
-
-(function (ItemCategory) {
-  ItemCategory[ItemCategory["Weapon"] = 0] = "Weapon";
-  ItemCategory[ItemCategory["Ammo"] = 1] = "Ammo";
-  ItemCategory[ItemCategory["Health"] = 2] = "Health";
-})(ItemCategory || (ItemCategory = {}));
-
-class Inventory {
-  constructor() {
-    this.items = new Map();
-  }
-
-  getCount(item) {
-    return this.items.get(item.id) || 0;
-  }
-
-  add(item) {
-    const itemCount = this.getCount(item) + 1;
-    this.items.set(item.id, itemCount);
-    return itemCount;
-  }
-
-  hasItem(item) {
-    return this.getCount(item) > 0;
-  }
-
-  useItem(item) {
-    if (!this.hasItem(item)) {
-      return false;
-    }
-
-    this.items.get(item.id);
-    return true;
-  }
-
-}
-// CONCATENATED MODULE: ./src/app/client/game/player/player.ts
-
-class player_Player {
-  constructor() {
-    this.inventory = new Inventory();
-  }
-
-}
 // CONCATENATED MODULE: ./src/app/client/game/main.ts
 
 
@@ -68478,7 +68530,8 @@ class player_Player {
 
 
 
-
+let gameEnd = false;
+let win = false;
 const runGame = async () => {
   let camera;
   let scene;
@@ -68487,6 +68540,11 @@ const runGame = async () => {
   let gun;
   let levelGenerator;
   let prevTime = performance.now();
+  const overlay = document.getElementById('overlay');
+  const playButton = document.getElementById('play-button');
+  const gameOverOverlay = document.getElementById('game-over-overlay');
+  const replayButton = document.getElementById('replay-button');
+  const winOverlay = document.getElementById('win-overlay');
   await init();
   animate();
 
@@ -68496,23 +68554,20 @@ const runGame = async () => {
     camera.position.x = 20;
     camera.position.z = 20;
     scene = new Scene();
-    scene.background = new Color(0xffffff);
-    scene.fog = new Fog(0xffffff, 0, 750);
+    scene.background = new Color(0x000000);
+    scene.fog = new Fog(0x000000, 0, 100);
     const light = new AmbientLight(0xeeeeff, 20);
     light.position.set(0.5, 1, 0.75);
     scene.add(light);
-    const overlay = document.getElementById('overlay');
-    const playButton = document.getElementById('play-button');
-    const object = await createItem({
-      position: new Vector3(10, 20, 10)
+    const randomPosition = getRandomSpawnPoint();
+    scene.add(await createEnemy({
+      position: new Vector3(randomPosition.x * BLOCK_SIZE, 0, randomPosition.z * BLOCK_SIZE)
+    }));
+    const goal = await createItem({
+      position: new Vector3(randomPosition.x * BLOCK_SIZE + BLOCK_SIZE / 2, BLOCK_SIZE / 4, randomPosition.z * BLOCK_SIZE + BLOCK_SIZE / 2)
     });
-    scene.add(object);
-    const ant = await createEnemy({
-      position: new Vector3(5 * BLOCK_SIZE, 0, 5 * BLOCK_SIZE)
-    }, LEVEL_META_DATA.map);
-    scene.add(ant);
-    const player = new player_Player();
-    controls = new controls_Controls(camera, document.body, () => {
+    scene.add(goal);
+    controls = new controls_Controls(camera, document.body, goal, () => {
       if (overlay) {
         overlay.style.display = 'none';
       }
@@ -68523,15 +68578,35 @@ const runGame = async () => {
     });
 
     if (playButton) {
-      playButton.addEventListener('click', function () {
+      playButton.addEventListener('click', () => {
         controls.lock();
+      });
+    }
+
+    if (replayButton) {
+      replayButton.addEventListener('click', async () => {
+        gameEnd = false;
+        controls.lock();
+
+        if (gameOverOverlay) {
+          gameOverOverlay.style.display = 'none';
+        }
+
+        scene.add(await createEnemy({
+          position: new Vector3(randomPosition.x * BLOCK_SIZE, 0, randomPosition.z * BLOCK_SIZE)
+        }));
+        camera.position.y = 10;
+        camera.position.x = 20;
+        camera.position.z = 20;
       });
     }
 
     createCrossHair(camera);
     scene.add(camera);
     levelGenerator = new level_generator_LevelGenerator(scene);
-    gun = new first_person_gun_FirstPersonGun(camera, scene);
+    gun = new first_person_gun_FirstPersonGun(camera, scene, async id => {
+      await resetEnemy(scene, id);
+    });
     renderer = new WebGLRenderer({
       antialias: true
     });
@@ -68547,9 +68622,38 @@ const runGame = async () => {
 
   function animate() {
     requestAnimationFrame(animate);
+
+    if (gameEnd || win) {
+      return;
+    }
+
+    if (overlay) {
+      if (overlay.style.display === 'flex') {
+        return;
+      }
+    }
+
     const time = performance.now();
     const delta = (time - prevTime) / 1000;
-    controls.update(delta, levelGenerator.Objects);
+    controls.update(delta, levelGenerator.Objects, () => {
+      controls.unlock();
+      gameEnd = true;
+      killAllEnemies(scene);
+
+      if (gameOverOverlay) {
+        gameOverOverlay.style.display = 'flex';
+      }
+
+      if (overlay) {
+        overlay.style.display = 'none';
+      }
+    }, () => {
+      win = true;
+
+      if (winOverlay) {
+        winOverlay.style.display = 'flex';
+      }
+    });
     gun.update(delta);
     prevTime = time;
     itemFactoryUpdateLoop(time);
@@ -68562,7 +68666,7 @@ function createCrossHair(camera) {
   const width = 0.02;
   const height = 0.02;
   const crosshair = new Line(new BufferGeometry().setFromPoints([new Vector3(0, height, 0), new Vector3(0, -height, 0), new Vector3(0, 0, 0), new Vector3(width, 0, 0), new Vector3(-width, 0, 0)]), new LineBasicMaterial({
-    color: 0x000000
+    color: 0xffffff
   }));
   crosshair.position.set(0, 0, -1);
   camera.add(crosshair);
