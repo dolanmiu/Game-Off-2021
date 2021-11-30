@@ -5045,7 +5045,7 @@ module.exports = function (cssWithMappingToString) {
 /* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1638234890549"
+module.exports = __webpack_require__.p + "0.main.worker.js?1638240738636"
 
 /***/ }),
 /* 38 */
@@ -67975,7 +67975,7 @@ const BLOCK_SIZE = 20;
 // CONCATENATED MODULE: ./src/app/client/game/level/level-meta-data.ts
 
 const LEVEL_META_DATA = {
-  map: [[0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0]]
+  map: [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1], [1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1], [1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1], [1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1], [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], [1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1], [1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1], [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1], [1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 };
 const spawnPoints = [];
 
@@ -68021,12 +68021,18 @@ const loadEnemyAudio = listener => {
   enemy_factory_sound = new PositionalAudio(listener);
   const audioLoader = new AudioLoader();
   audioLoader.load('assets/sounds/stomp.wav', buffer => {
-    enemy_factory_sound.setVolume(1);
+    enemy_factory_sound.setVolume(3);
     enemy_factory_sound.setRolloffFactor(2);
     enemy_factory_sound.setBuffer(buffer);
     enemy_factory_sound.setLoop(true);
     setInterval(() => {
-      enemy_factory_sound.setDetune(Math.random() * 500);
+      if (!enemy_factory_sound) {
+        return;
+      }
+
+      try {
+        enemy_factory_sound.setDetune(Math.random() * 500);
+      } catch (_a) {}
     }, 500);
   });
 };
@@ -68065,8 +68071,8 @@ const enemyFactoryUpdateLoop = (delta, playerPosition) => {
       }
 
       const newV = new Vector3(modelPositionX, 0, modelPositionZ).sub(state.nextCell).normalize();
-      model.position.x -= newV.x / 2;
-      model.position.z -= newV.z / 2;
+      model.position.x -= newV.x;
+      model.position.z -= newV.z;
       model.rotation.y = Math.atan2(playerPosition.x - model.position.x, playerPosition.z - model.position.z);
     }
   } catch (err) {
@@ -68559,6 +68565,7 @@ const runGame = async () => {
   let levelGenerator;
   let gameOverSound;
   let winSound;
+  let ambienceSound;
   let prevTime = performance.now();
   const overlay = document.getElementById('overlay');
   const playButton = document.getElementById('play-button');
@@ -68571,8 +68578,8 @@ const runGame = async () => {
   async function init() {
     camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.y = 10;
-    camera.position.x = 20;
-    camera.position.z = 20;
+    camera.position.x = 20 - BLOCK_SIZE / 2;
+    camera.position.z = 20 - BLOCK_SIZE / 2;
     const listener = new AudioListener();
     camera.add(listener);
     loadEnemyAudio(listener);
@@ -68586,6 +68593,13 @@ const runGame = async () => {
     audioLoader.load('assets/sounds/win.wav', buffer => {
       winSound.setBuffer(buffer);
       winSound.setVolume(0.5);
+    });
+    ambienceSound = new Audio(listener);
+    audioLoader.load('assets/sounds/ambience.ogg', buffer => {
+      ambienceSound.setBuffer(buffer);
+      ambienceSound.setVolume(0.2);
+      ambienceSound.setLoop(true);
+      ambienceSound.play();
     });
     scene = new Scene();
     scene.background = new Color(0x000000);
@@ -68629,9 +68643,9 @@ const runGame = async () => {
         scene.add(await createEnemy({
           position: new Vector3(randomPosition.x * BLOCK_SIZE, 0, randomPosition.z * BLOCK_SIZE)
         }));
-        camera.position.y = 10;
-        camera.position.x = 20;
-        camera.position.z = 20;
+        const pos = getRandomSpawnPoint();
+        camera.position.x = pos.x * BLOCK_SIZE - BLOCK_SIZE / 2;
+        camera.position.z = pos.z * BLOCK_SIZE - BLOCK_SIZE / 2;
       });
     }
 
@@ -68656,6 +68670,12 @@ const runGame = async () => {
 
   function animate() {
     requestAnimationFrame(animate);
+
+    if (camera.position.x > LEVEL_META_DATA.map.length * BLOCK_SIZE || camera.position.x < 0 || camera.position.z > LEVEL_META_DATA.map[0].length * BLOCK_SIZE || camera.position.z < 0) {
+      const pos = getRandomSpawnPoint();
+      camera.position.x = pos.x * BLOCK_SIZE - BLOCK_SIZE / 2;
+      camera.position.z = pos.z * BLOCK_SIZE - BLOCK_SIZE / 2;
+    }
 
     if (gameEnd || win) {
       return;
