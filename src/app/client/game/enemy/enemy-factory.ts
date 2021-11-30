@@ -75,8 +75,8 @@ export const enemyFactoryUpdateLoop = (delta: number, playerPosition: Vector3): 
       }
 
       const newV = new Vector3(modelPositionX, 0, modelPositionZ).sub(state.nextCell).normalize();
-      model.position.x -= newV.x;
-      model.position.z -= newV.z;
+      model.position.x -= newV.x / 1.5;
+      model.position.z -= newV.z / 1.5;
       model.rotation.y = Math.atan2(playerPosition.x - model.position.x, playerPosition.z - model.position.z);
    }
 };
