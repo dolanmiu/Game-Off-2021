@@ -1,4 +1,4 @@
-import { AnimationClip, AnimationMixer, Object3D, Scene, Vector3 } from 'three';
+import { AnimationClip, AnimationMixer, AudioListener, AudioLoader, Object3D, PositionalAudio, Scene, Vector3 } from 'three';
 import * as PF from 'pathfinding';
 
 import { memoizedLoad } from '../util/model-loader';
@@ -17,6 +17,21 @@ interface Enemy {
       nextCell: Vector3;
    };
 }
+
+let sound: PositionalAudio;
+export const loadEnemyAudio = (listener: AudioListener): void => {
+   sound = new PositionalAudio(listener);
+   const audioLoader = new AudioLoader();
+   audioLoader.load('assets/sounds/stomp.wav', (buffer) => {
+      sound.setVolume(1);
+      sound.setRolloffFactor(2);
+      sound.setBuffer(buffer);
+      sound.setLoop(true);
+      setInterval(() => {
+         sound.setDetune(Math.random() * 500);
+      }, 500);
+   });
+};
 
 export const enemies = new Map<number, Enemy>();
 
@@ -70,6 +85,10 @@ export const createEnemy = async ({ position }: { readonly position: Vector3 }):
    model.position.set(position.x, position.y, position.z);
    model.scale.set(10, 10, 10);
    model.rotation.set(0, (Math.PI * 2) / 4 + Math.PI, 0);
+   model.add(sound);
+   setTimeout(() => {
+      sound.play();
+   }, 3000);
 
    const mixer = new AnimationMixer(model);
    const clip = gltf.animations[2];
@@ -117,4 +136,5 @@ export const killAllEnemies = (scene: Scene): void => {
       scene.remove(model);
       enemies.delete(model.id);
    }
+   sound.stop();
 };

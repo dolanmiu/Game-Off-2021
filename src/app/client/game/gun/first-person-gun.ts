@@ -9,7 +9,7 @@ export class FirstPersonGun {
    private gunModel: Group | undefined;
    private downKey: string | undefined;
 
-   public constructor(camera: Camera, scene: Scene, shootCallback: (object: Object3D) => void) {
+   public constructor(camera: Camera, scene: Scene, listener: AudioListener, shootCallback: (object: Object3D) => void) {
       const loader = new GLTFLoader();
 
       loader.load(
@@ -38,15 +38,12 @@ export class FirstPersonGun {
          false,
       );
 
-      const listener = new AudioListener();
-      camera.add(listener);
-
       const sound = new Audio(listener);
 
       const audioLoader = new AudioLoader();
       audioLoader.load('assets/sounds/gunshot.ogg', (buffer) => {
          sound.setBuffer(buffer);
-         sound.setVolume(0.3);
+         sound.setVolume(0.1);
       });
 
       window.addEventListener('click', () => {

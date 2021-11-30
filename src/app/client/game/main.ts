@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import { BufferGeometry, Object3D, PerspectiveCamera, Vector3 } from 'three';
+import { Audio, AudioListener, AudioLoader, BufferGeometry, PerspectiveCamera, Vector3 } from 'three';
 
 import { Controls } from './controls/controls';
-import { createEnemy, enemyFactoryUpdateLoop, killAllEnemies, resetEnemy } from './enemy/enemy-factory';
+import { createEnemy, enemyFactoryUpdateLoop, killAllEnemies, loadEnemyAudio, resetEnemy } from './enemy/enemy-factory';
 import { FirstPersonGun } from './gun/first-person-gun';
 import { createItem, itemFactoryUpdateLoop } from './item/item-factory';
 import { LevelGenerator } from './level/level-generator';
-import { getRandomSpawnPoint, LEVEL_META_DATA } from './level/level-meta-data';
+import { getRandomSpawnPoint } from './level/level-meta-data';
 import { BLOCK_SIZE } from './util/constants';
 
 let gameEnd = false;
@@ -19,6 +19,8 @@ export const runGame = async (): Promise<void> => {
    let controls: Controls;
    let gun: FirstPersonGun;
    let levelGenerator: LevelGenerator;
+   let gameOverSound: Audio;
+   let winSound: Audio;
 
    let prevTime = performance.now();
 
@@ -36,6 +38,23 @@ export const runGame = async (): Promise<void> => {
       camera.position.y = 10;
       camera.position.x = 20;
       camera.position.z = 20;
+
+      const listener = new AudioListener();
+      camera.add(listener);
+
+      loadEnemyAudio(listener);
+
+      const audioLoader = new AudioLoader();
+      gameOverSound = new Audio(listener);
+      audioLoader.load('assets/sounds/game-over.wav', (buffer) => {
+         gameOverSound.setBuffer(buffer);
+         gameOverSound.setVolume(1);
+      });
+      winSound = new Audio(listener);
+      audioLoader.load('assets/sounds/win.wav', (buffer) => {
+         winSound.setBuffer(buffer);
+         winSound.setVolume(0.5);
+      });
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x000000);
@@ -108,7 +127,7 @@ export const runGame = async (): Promise<void> => {
 
       levelGenerator = new LevelGenerator(scene);
 
-      gun = new FirstPersonGun(camera, scene, async (id) => {
+      gun = new FirstPersonGun(camera, scene, listener, async (id) => {
          await resetEnemy(scene, id);
       });
 
@@ -146,6 +165,7 @@ export const runGame = async (): Promise<void> => {
          () => {
             controls.unlock();
             gameEnd = true;
+            gameOverSound.play();
             killAllEnemies(scene);
             if (gameOverOverlay) {
                gameOverOverlay.style.display = 'flex';
@@ -156,6 +176,7 @@ export const runGame = async (): Promise<void> => {
          },
          () => {
             win = true;
+            winSound.play();
             if (winOverlay) {
                winOverlay.style.display = 'flex';
             }
