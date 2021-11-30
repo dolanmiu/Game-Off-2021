@@ -5045,7 +5045,7 @@ module.exports = function (cssWithMappingToString) {
 /* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1638240738636"
+module.exports = __webpack_require__.p + "0.main.worker.js?1638240992364"
 
 /***/ }),
 /* 38 */
@@ -68071,8 +68071,8 @@ const enemyFactoryUpdateLoop = (delta, playerPosition) => {
       }
 
       const newV = new Vector3(modelPositionX, 0, modelPositionZ).sub(state.nextCell).normalize();
-      model.position.x -= newV.x;
-      model.position.z -= newV.z;
+      model.position.x -= newV.x / 1.5;
+      model.position.z -= newV.z / 1.5;
       model.rotation.y = Math.atan2(playerPosition.x - model.position.x, playerPosition.z - model.position.z);
     }
   } catch (err) {
