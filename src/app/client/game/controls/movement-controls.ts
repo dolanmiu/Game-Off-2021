@@ -33,10 +33,10 @@ export class MovementControls {
                break;
 
             case 'Space':
-               if (this.canJump === true) {
-                  this.velocity.y += 350;
-               }
-               this.canJump = false;
+               // if (this.canJump === true) {
+               //    this.velocity.y += 350;
+               // }
+               // this.canJump = false;
                break;
          }
       });

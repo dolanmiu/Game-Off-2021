@@ -5,7 +5,6 @@ import {
    Float32BufferAttribute,
    Mesh,
    MeshBasicMaterial,
-   MeshPhongMaterial,
    Object3D,
    PlaneGeometry,
    Scene,
@@ -59,7 +58,7 @@ export class LevelGenerator {
 
       // objects
 
-      const boxGeometry = new BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE).toNonIndexed();
+      const boxGeometry = new BoxGeometry(BLOCK_SIZE, BLOCK_SIZE * 10, BLOCK_SIZE).toNonIndexed();
 
       position = boxGeometry.attributes.position;
       const colorsBox = [];

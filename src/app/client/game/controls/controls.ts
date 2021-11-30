@@ -10,7 +10,13 @@ export class Controls {
    private readonly raycaster: Raycaster;
    private readonly sphere: Sphere;
 
-   public constructor(private readonly camera: Camera, domElement: HTMLElement, onLock: () => void, onUnlock: () => void) {
+   public constructor(
+      private readonly camera: Camera,
+      domElement: HTMLElement,
+      private readonly goal: Object3D,
+      onLock: () => void,
+      onUnlock: () => void,
+   ) {
       this.movementControls = new MovementControls();
       this.pointerLockControls = new PointerLockControls(camera, domElement);
       this.pointerLockControls.addEventListener('lock', onLock);
@@ -21,7 +27,7 @@ export class Controls {
       this.sphere = new Sphere(this.camera.position, 5);
    }
 
-   public update(delta: number, objects: Object3D[]): void {
+   public update(delta: number, objects: Object3D[], onDead: () => void, onWin: () => void): void {
       if (this.pointerLockControls.isLocked === true) {
          this.raycaster.ray.origin.copy(this.camera.position);
          this.raycaster.ray.origin.y -= 10;
@@ -39,8 +45,13 @@ export class Controls {
             this.sphere.center = this.camera.position;
             const boundingBox = new Box3().setFromObject(model);
             if (this.sphere.intersectsBox(boundingBox)) {
-               console.log('dead')
+               onDead();
             }
+         }
+         this.sphere.center = this.camera.position;
+         const boundingBox = new Box3().setFromObject(this.goal);
+         if (this.sphere.intersectsBox(boundingBox)) {
+            onWin();
          }
 
          this.movementControls.update(delta, this.pointerLockControls.isLocked);
@@ -65,6 +76,10 @@ export class Controls {
 
    public lock(): void {
       this.pointerLockControls.lock();
+   }
+
+   public unlock(): void {
+      this.pointerLockControls.unlock();
    }
 
    public get isLocked(): boolean {

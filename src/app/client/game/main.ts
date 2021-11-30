@@ -2,13 +2,15 @@ import * as THREE from 'three';
 import { BufferGeometry, Object3D, PerspectiveCamera, Vector3 } from 'three';
 
 import { Controls } from './controls/controls';
-import { createEnemy, enemyFactoryUpdateLoop, resetEnemy } from './enemy/enemy-factory';
+import { createEnemy, enemyFactoryUpdateLoop, killAllEnemies, resetEnemy } from './enemy/enemy-factory';
 import { FirstPersonGun } from './gun/first-person-gun';
 import { createItem, itemFactoryUpdateLoop } from './item/item-factory';
 import { LevelGenerator } from './level/level-generator';
-import { LEVEL_META_DATA } from './level/level-meta-data';
-import { Player } from './player/player';
+import { getRandomSpawnPoint, LEVEL_META_DATA } from './level/level-meta-data';
 import { BLOCK_SIZE } from './util/constants';
+
+let gameEnd = false;
+let win = false;
 
 export const runGame = async (): Promise<void> => {
    let camera: THREE.PerspectiveCamera;
@@ -17,9 +19,14 @@ export const runGame = async (): Promise<void> => {
    let controls: Controls;
    let gun: FirstPersonGun;
    let levelGenerator: LevelGenerator;
-   let ant: Object3D;
 
    let prevTime = performance.now();
+
+   const overlay = document.getElementById('overlay');
+   const playButton = document.getElementById('play-button');
+   const gameOverOverlay = document.getElementById('game-over-overlay');
+   const replayButton = document.getElementById('replay-button');
+   const winOverlay = document.getElementById('win-overlay');
 
    await init();
    animate();
@@ -31,36 +38,35 @@ export const runGame = async (): Promise<void> => {
       camera.position.z = 20;
 
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xffffff);
-      scene.fog = new THREE.Fog(0xffffff, 0, 750);
+      scene.background = new THREE.Color(0x000000);
+      scene.fog = new THREE.Fog(0x000000, 0, 100);
 
       const light = new THREE.AmbientLight(0xeeeeff, 20);
       light.position.set(0.5, 1, 0.75);
       scene.add(light);
 
-      const overlay = document.getElementById('overlay');
-      const playButton = document.getElementById('play-button');
+      const randomPosition = getRandomSpawnPoint();
 
-      const object = await createItem({
-         position: new THREE.Vector3(10, 20, 10),
-      });
-
-      scene.add(object);
-
-      ant = await createEnemy(
-         {
-            position: new THREE.Vector3(5 * BLOCK_SIZE, 0, 5 * BLOCK_SIZE),
-         },
-         LEVEL_META_DATA.map,
+      scene.add(
+         await createEnemy({
+            position: new THREE.Vector3(randomPosition.x * BLOCK_SIZE, 0, randomPosition.z * BLOCK_SIZE),
+         }),
       );
 
-      scene.add(ant);
+      const goal = await createItem({
+         position: new THREE.Vector3(
+            randomPosition.x * BLOCK_SIZE + BLOCK_SIZE / 2,
+            BLOCK_SIZE / 4,
+            randomPosition.z * BLOCK_SIZE + BLOCK_SIZE / 2,
+         ),
+      });
 
-      const player = new Player();
+      scene.add(goal);
 
       controls = new Controls(
          camera,
          document.body,
+         goal,
          () => {
             if (overlay) {
                overlay.style.display = 'none';
@@ -74,8 +80,26 @@ export const runGame = async (): Promise<void> => {
       );
 
       if (playButton) {
-         playButton.addEventListener('click', function () {
+         playButton.addEventListener('click', () => {
             controls.lock();
+         });
+      }
+
+      if (replayButton) {
+         replayButton.addEventListener('click', async () => {
+            gameEnd = false;
+            controls.lock();
+            if (gameOverOverlay) {
+               gameOverOverlay.style.display = 'none';
+            }
+            scene.add(
+               await createEnemy({
+                  position: new THREE.Vector3(randomPosition.x * BLOCK_SIZE, 0, randomPosition.z * BLOCK_SIZE),
+               }),
+            );
+            camera.position.y = 10;
+            camera.position.x = 20;
+            camera.position.z = 20;
          });
       }
 
@@ -85,7 +109,7 @@ export const runGame = async (): Promise<void> => {
       levelGenerator = new LevelGenerator(scene);
 
       gun = new FirstPersonGun(camera, scene, async (id) => {
-         await resetEnemy(scene, id, LEVEL_META_DATA.map);
+         await resetEnemy(scene, id);
       });
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -103,9 +127,40 @@ export const runGame = async (): Promise<void> => {
 
    function animate() {
       requestAnimationFrame(animate);
+
+      if (gameEnd || win) {
+         return;
+      }
+
+      if (overlay) {
+         if (overlay.style.display === 'flex') {
+            return;
+         }
+      }
+
       const time = performance.now();
       const delta = (time - prevTime) / 1000;
-      controls.update(delta, levelGenerator.Objects, [ant]);
+      controls.update(
+         delta,
+         levelGenerator.Objects,
+         () => {
+            controls.unlock();
+            gameEnd = true;
+            killAllEnemies(scene);
+            if (gameOverOverlay) {
+               gameOverOverlay.style.display = 'flex';
+            }
+            if (overlay) {
+               overlay.style.display = 'none';
+            }
+         },
+         () => {
+            win = true;
+            if (winOverlay) {
+               winOverlay.style.display = 'flex';
+            }
+         },
+      );
       gun.update(delta);
       prevTime = time;
 
@@ -127,7 +182,7 @@ function createCrossHair(camera: PerspectiveCamera) {
          new Vector3(width, 0, 0),
          new Vector3(-width, 0, 0),
       ]),
-      new THREE.LineBasicMaterial({ color: 0x000000 }),
+      new THREE.LineBasicMaterial({ color: 0xffffff }),
    );
 
    crosshair.position.set(0, 0, -1);

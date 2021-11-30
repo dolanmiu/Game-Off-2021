@@ -3,7 +3,7 @@ import * as PF from 'pathfinding';
 
 import { memoizedLoad } from '../util/model-loader';
 import { BLOCK_SIZE } from '../util/constants';
-import { getRandomSpawnPoint } from '../level/level-meta-data';
+import { getRandomSpawnPoint, LEVEL_META_DATA } from '../level/level-meta-data';
 
 let pathFindingGrid: PF.Grid | undefined;
 const pathFinder = new PF.AStarFinder({
@@ -21,7 +21,7 @@ interface Enemy {
 export const enemies = new Map<number, Enemy>();
 
 export const enemyFactoryUpdateLoop = (delta: number, playerPosition: Vector3): void => {
-   for (const [, { mixer, animations, model, state }] of enemies) {
+   for (const [, { mixer, model, state }] of enemies) {
       mixer.update(delta);
 
       const modelPositionX = Math.floor(model.position.x / BLOCK_SIZE);
@@ -54,15 +54,15 @@ export const enemyFactoryUpdateLoop = (delta: number, playerPosition: Vector3): 
       }
 
       const newV = new Vector3(modelPositionX, 0, modelPositionZ).sub(state.nextCell).normalize();
-      model.position.x -= newV.x;
-      model.position.z -= newV.z;
+      model.position.x -= newV.x / 2;
+      model.position.z -= newV.z / 2;
       model.rotation.y = Math.atan2(playerPosition.x - model.position.x, playerPosition.z - model.position.z);
    }
 };
 
-export const createEnemy = async ({ position }: { readonly position: Vector3 }, map: number[][]): Promise<Object3D> => {
+export const createEnemy = async ({ position }: { readonly position: Vector3 }): Promise<Object3D> => {
    if (!pathFindingGrid) {
-      pathFindingGrid = new PF.Grid(map);
+      pathFindingGrid = new PF.Grid(LEVEL_META_DATA.map);
    }
 
    const gltf = await memoizedLoad('assets/models/hench-ant.glb');
@@ -89,7 +89,7 @@ export const createEnemy = async ({ position }: { readonly position: Vector3 }, 
    return model;
 };
 
-export const resetEnemy = async (scene: Scene, object: Object3D, map: number[][]): Promise<void> => {
+export const resetEnemy = async (scene: Scene, object: Object3D): Promise<void> => {
    const bodyPart = object;
    const spawnPoint = getRandomSpawnPoint();
 
@@ -108,6 +108,13 @@ export const resetEnemy = async (scene: Scene, object: Object3D, map: number[][]
    }
    scene.remove(curr);
    enemies.delete(curr.id);
-   const ant = await createEnemy({ position: new Vector3(spawnPoint.x * BLOCK_SIZE, 0, spawnPoint.z * BLOCK_SIZE) }, map);
+   const ant = await createEnemy({ position: new Vector3(spawnPoint.x * BLOCK_SIZE, 0, spawnPoint.z * BLOCK_SIZE) });
    scene.add(ant);
+};
+
+export const killAllEnemies = (scene: Scene): void => {
+   for (const [, { model }] of enemies) {
+      scene.remove(model);
+      enemies.delete(model.id);
+   }
 };
