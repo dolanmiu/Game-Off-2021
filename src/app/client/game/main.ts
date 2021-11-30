@@ -36,8 +36,8 @@ export const runGame = async (): Promise<void> => {
    async function init() {
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
       camera.position.y = 10;
-      camera.position.x = 20;
-      camera.position.z = 20;
+      camera.position.x = 20 - (BLOCK_SIZE / 2);
+      camera.position.z = 20 - (BLOCK_SIZE / 2);
 
       const listener = new AudioListener();
       camera.add(listener);

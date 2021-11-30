@@ -28,6 +28,9 @@ export const loadEnemyAudio = (listener: AudioListener): void => {
       sound.setBuffer(buffer);
       sound.setLoop(true);
       setInterval(() => {
+         if (!sound) {
+            return;
+         }
          sound.setDetune(Math.random() * 500);
       }, 500);
    });
@@ -69,8 +72,8 @@ export const enemyFactoryUpdateLoop = (delta: number, playerPosition: Vector3): 
       }
 
       const newV = new Vector3(modelPositionX, 0, modelPositionZ).sub(state.nextCell).normalize();
-      model.position.x -= newV.x / 2;
-      model.position.z -= newV.z / 2;
+      model.position.x -= newV.x;
+      model.position.z -= newV.z;
       model.rotation.y = Math.atan2(playerPosition.x - model.position.x, playerPosition.z - model.position.z);
    }
 };
