@@ -5045,7 +5045,7 @@ module.exports = function (cssWithMappingToString) {
 /* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "0.main.worker.js?1638232994574"
+module.exports = __webpack_require__.p + "0.main.worker.js?1638234890549"
 
 /***/ }),
 /* 38 */
@@ -68016,6 +68016,20 @@ let pathFindingGrid;
 const pathFinder = new pathfinding["AStarFinder"]({
   diagonalMovement: pathfinding["DiagonalMovement"].OnlyWhenNoObstacles
 });
+let enemy_factory_sound;
+const loadEnemyAudio = listener => {
+  enemy_factory_sound = new PositionalAudio(listener);
+  const audioLoader = new AudioLoader();
+  audioLoader.load('assets/sounds/stomp.wav', buffer => {
+    enemy_factory_sound.setVolume(1);
+    enemy_factory_sound.setRolloffFactor(2);
+    enemy_factory_sound.setBuffer(buffer);
+    enemy_factory_sound.setLoop(true);
+    setInterval(() => {
+      enemy_factory_sound.setDetune(Math.random() * 500);
+    }, 500);
+  });
+};
 const enemies = new Map();
 const enemyFactoryUpdateLoop = (delta, playerPosition) => {
   var _iterator = _createForOfIteratorHelper(enemies),
@@ -68073,6 +68087,10 @@ const createEnemy = async ({
   model.position.set(position.x, position.y, position.z);
   model.scale.set(10, 10, 10);
   model.rotation.set(0, Math.PI * 2 / 4 + Math.PI, 0);
+  model.add(enemy_factory_sound);
+  setTimeout(() => {
+    enemy_factory_sound.play();
+  }, 3000);
   const mixer = new AnimationMixer(model);
   const clip = gltf.animations[2];
   mixer.clipAction(clip).play();
@@ -68128,6 +68146,8 @@ const killAllEnemies = scene => {
   } finally {
     _iterator2.f();
   }
+
+  enemy_factory_sound.stop();
 };
 // CONCATENATED MODULE: ./src/app/client/game/controls/movement-controls.ts
 
@@ -68327,7 +68347,7 @@ class controls_Controls {
 
 
 class first_person_gun_FirstPersonGun {
-  constructor(camera, scene, shootCallback) {
+  constructor(camera, scene, listener, shootCallback) {
     this.bob = 0;
     this.isBobbing = false;
     const loader = new GLTFLoader_GLTFLoader();
@@ -68346,13 +68366,11 @@ class first_person_gun_FirstPersonGun {
       this.mousePosition.x = event.clientX / window.innerWidth * 2 - 1;
       this.mousePosition.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }, false);
-    const listener = new AudioListener();
-    camera.add(listener);
     const sound = new Audio(listener);
     const audioLoader = new AudioLoader();
     audioLoader.load('assets/sounds/gunshot.ogg', buffer => {
       sound.setBuffer(buffer);
-      sound.setVolume(0.3);
+      sound.setVolume(0.1);
     });
     window.addEventListener('click', () => {
       this.raycaster.setFromCamera(this.mousePosition, camera);
@@ -68539,6 +68557,8 @@ const runGame = async () => {
   let controls;
   let gun;
   let levelGenerator;
+  let gameOverSound;
+  let winSound;
   let prevTime = performance.now();
   const overlay = document.getElementById('overlay');
   const playButton = document.getElementById('play-button');
@@ -68553,6 +68573,20 @@ const runGame = async () => {
     camera.position.y = 10;
     camera.position.x = 20;
     camera.position.z = 20;
+    const listener = new AudioListener();
+    camera.add(listener);
+    loadEnemyAudio(listener);
+    const audioLoader = new AudioLoader();
+    gameOverSound = new Audio(listener);
+    audioLoader.load('assets/sounds/game-over.wav', buffer => {
+      gameOverSound.setBuffer(buffer);
+      gameOverSound.setVolume(1);
+    });
+    winSound = new Audio(listener);
+    audioLoader.load('assets/sounds/win.wav', buffer => {
+      winSound.setBuffer(buffer);
+      winSound.setVolume(0.5);
+    });
     scene = new Scene();
     scene.background = new Color(0x000000);
     scene.fog = new Fog(0x000000, 0, 100);
@@ -68604,7 +68638,7 @@ const runGame = async () => {
     createCrossHair(camera);
     scene.add(camera);
     levelGenerator = new level_generator_LevelGenerator(scene);
-    gun = new first_person_gun_FirstPersonGun(camera, scene, async id => {
+    gun = new first_person_gun_FirstPersonGun(camera, scene, listener, async id => {
       await resetEnemy(scene, id);
     });
     renderer = new WebGLRenderer({
@@ -68638,6 +68672,7 @@ const runGame = async () => {
     controls.update(delta, levelGenerator.Objects, () => {
       controls.unlock();
       gameEnd = true;
+      gameOverSound.play();
       killAllEnemies(scene);
 
       if (gameOverOverlay) {
@@ -68649,6 +68684,7 @@ const runGame = async () => {
       }
     }, () => {
       win = true;
+      winSound.play();
 
       if (winOverlay) {
         winOverlay.style.display = 'flex';
